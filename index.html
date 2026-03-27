@@ -351,13 +351,138 @@
     margin-top:4px;
   }
 
+  /* ── MENU FLOTTANT MOBILE ─────────────────── */
+  .fab-menu {
+    display:none;
+    position:fixed;
+    bottom:24px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:1000;
+  }
+  .fab-button {
+    width:64px;
+    height:64px;
+    border-radius:32px;
+    background:linear-gradient(135deg,var(--eau) 0%,var(--eau-claire) 100%);
+    border:none;
+    box-shadow:0 4px 20px rgba(0,0,0,0.25);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all 0.3s ease;
+    z-index:1001;
+    position:relative;
+  }
+  .fab-button:active {
+    transform:scale(0.92);
+  }
+  .fab-button span {
+    font-size:32px;
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+  
+  .menu-overlay {
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background:rgba(0,0,0,0.5);
+    backdrop-filter:blur(4px);
+    z-index:1002;
+    opacity:0;
+    visibility:hidden;
+    transition:all 0.3s ease;
+  }
+  .menu-overlay.active {
+    opacity:1;
+    visibility:visible;
+  }
+  
+  .menu-popup {
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%, -50%) scale(0.9);
+    background:white;
+    border-radius:28px;
+    padding:24px 20px;
+    width:calc(100% - 48px);
+    max-width:320px;
+    z-index:1003;
+    opacity:0;
+    visibility:hidden;
+    transition:all 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+    box-shadow:0 20px 40px rgba(0,0,0,0.3);
+  }
+  .menu-popup.active {
+    transform:translate(-50%, -50%) scale(1);
+    opacity:1;
+    visibility:visible;
+  }
+  .menu-popup-header {
+    text-align:center;
+    padding-bottom:16px;
+    margin-bottom:16px;
+    border-bottom:2px solid #eef2f5;
+  }
+  .menu-popup-header .icon {
+    font-size:40px;
+    display:block;
+    margin-bottom:8px;
+  }
+  .menu-popup-header h3 {
+    font-family:'Playfair Display',serif;
+    font-size:18px;
+    color:var(--eau-profonde);
+  }
+  .menu-items {
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .menu-item {
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px 16px;
+    background:#f8f9fa;
+    border:none;
+    border-radius:16px;
+    width:100%;
+    text-align:left;
+    cursor:pointer;
+    transition:all 0.2s;
+    font-family:'DM Sans',sans-serif;
+    font-size:15px;
+    font-weight:500;
+    color:var(--texte);
+  }
+  .menu-item:active {
+    transform:scale(0.97);
+    background:#eef2f5;
+  }
+  .menu-item .menu-icon {
+    font-size:24px;
+    width:36px;
+    text-align:center;
+  }
+  .menu-item.active {
+    background:linear-gradient(135deg,var(--eau) 0%,var(--eau-claire) 100%);
+    color:white;
+  }
+  .menu-item.active .menu-icon {
+    filter:brightness(0) invert(1);
+  }
+
   /* ── MOBILE ONLY ─────────────────────────── */
-  .bottom-nav{display:none;}
   .mobile-header{display:none;}
   .mobile-stats-bar{display:none;}
 
   /* ── TOAST ───────────────────────────────── */
-  .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--mousse);color:white;padding:12px 24px;border-radius:30px;font-size:14px;font-weight:500;opacity:0;transition:all 0.3s;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.15);}
+  .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--mousse);color:white;padding:12px 24px;border-radius:30px;font-size:14px;font-weight:500;opacity:0;transition:all 0.3s;z-index:2000;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.15);}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
   @keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
@@ -385,32 +510,78 @@
   ══════════════════════════════════════════ */
   @media(max-width:767px){
     body{display:block;background:var(--eau-profonde);}
-    body::before{content:'';position:fixed;top:0;left:0;right:0;height:200px;background:linear-gradient(180deg,var(--eau) 0%,var(--eau-profonde) 100%);z-index:0;}
-    body::after{content:'';position:fixed;top:145px;left:-10%;width:120%;height:70px;background:rgba(42,96,128,0.25);border-radius:50%;filter:blur(20px);animation:vague 6s ease-in-out infinite;z-index:0;}
+    body::before{content:'';position:fixed;top:0;left:0;right:0;height:180px;background:linear-gradient(180deg,var(--eau) 0%,var(--eau-profonde) 100%);z-index:0;}
+    body::after{content:'';position:fixed;top:135px;left:-10%;width:120%;height:70px;background:rgba(42,96,128,0.25);border-radius:50%;filter:blur(20px);animation:vague 6s ease-in-out infinite;z-index:0;}
 
     .sidebar{display:none;}
     .topbar{display:none;}
 
     .mobile-header{
-      display:block;position:fixed;top:0;left:0;right:0;z-index:50;
-      padding:40px 20px 12px;text-align:center;
+      display:block;
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      z-index:50;
+      padding:20px 20px 8px;
+      text-align:center;
+      background:linear-gradient(180deg,var(--eau) 0%,transparent 100%);
     }
-    .mobile-header .icon{font-size:36px;display:block;margin-bottom:6px;filter:drop-shadow(0 2px 8px rgba(240,192,64,0.5));}
-    .mobile-header h1{font-family:'Playfair Display',serif;font-size:22px;color:var(--sable);}
+    .mobile-header .icon{
+      font-size:32px;
+      display:block;
+      margin-bottom:4px;
+      filter:drop-shadow(0 2px 8px rgba(240,192,64,0.5));
+    }
+    .mobile-header h1{
+      font-family:'Playfair Display',serif;
+      font-size:20px;
+      color:var(--sable);
+    }
 
     .mobile-stats-bar{
-      display:flex;gap:10px;
-      position:fixed;top:108px;left:0;right:0;padding:0 16px;z-index:50;
+      display:flex;
+      gap:10px;
+      position:fixed;
+      top:76px;
+      left:0;
+      right:0;
+      padding:0 16px;
+      z-index:50;
     }
-    .mob-stat{flex:1;background:rgba(255,255,255,0.1);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 6px;text-align:center;}
-    .mob-stat .num{font-family:'Playfair Display',serif;font-size:20px;color:var(--eclair);display:block;font-weight:700;}
-    .mob-stat .label{font-size:10px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.7px;margin-top:4px;display:block;}
+    .mob-stat{
+      flex:1;
+      background:rgba(255,255,255,0.1);
+      backdrop-filter:blur(10px);
+      border:1px solid rgba(255,255,255,0.15);
+      border-radius:12px;
+      padding:8px 6px;
+      text-align:center;
+    }
+    .mob-stat .num{
+      font-family:'Playfair Display',serif;
+      font-size:18px;
+      color:var(--eclair);
+      display:block;
+      font-weight:700;
+    }
+    .mob-stat .label{
+      font-size:9px;
+      color:rgba(255,255,255,0.7);
+      text-transform:uppercase;
+      letter-spacing:0.7px;
+      margin-top:2px;
+      display:block;
+    }
 
     .app-body{
-      margin-left:0;background:var(--blanc);
-      border-radius:28px 28px 0 0;margin-top:168px;min-height:calc(100vh - 168px);
+      margin-left:0;
+      background:var(--blanc);
+      border-radius:28px 28px 0 0;
+      margin-top:122px;
+      min-height:calc(100vh - 122px);
     }
-    .page-content{padding:20px 16px 88px;}
+    .page-content{padding:20px 16px 100px;}
     .cards-grid{grid-template-columns:1fr;}
     .stats-grid{grid-template-columns:1fr;}
     .form-layout{grid-template-columns:1fr;gap:16px;}
@@ -431,19 +602,8 @@
     #map { height: 350px; }
     .spots-stats { flex-direction: column; gap: 8px; }
 
-    .bottom-nav{
-      display:flex;position:fixed;bottom:0;left:0;right:0;
-      background:white;border-top:1px solid #eef2f5;
-      padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));z-index:100;
-      box-shadow:0 -2px 20px rgba(0,0,0,0.08);
-    }
-    .mob-nav-btn{flex:1;background:none;border:none;padding:8px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all 0.2s;}
-    .mob-nav-btn .nav-icon{font-size:24px;}
-    .mob-nav-btn .nav-label{font-size:11px;font-weight:500;color:var(--gris);font-family:'DM Sans',sans-serif;}
-    .mob-nav-btn.active .nav-label{color:var(--eau-claire);font-weight:700;}
-    .mob-nav-btn:active{transform:scale(0.95);}
+    .fab-menu { display:block; }
     
-    .toast{bottom:80px;white-space:normal;text-align:center;max-width:90%;font-size:13px;}
     .btn-delete-desktop{display:none;}
     .entry-card-header{padding-right:0;}
   }
@@ -452,6 +612,23 @@
   @media(max-width:480px){
     .meteo-btn { min-width: calc(50% - 10px); font-size: 12px; padding: 8px 12px; }
     .form-card { padding: 16px; }
+    .menu-popup { width: calc(100% - 32px); padding: 20px 16px; }
+    
+    .mobile-header {
+      padding: 16px 20px 6px;
+    }
+    .mobile-header .icon {
+      font-size: 28px;
+    }
+    .mobile-header h1 {
+      font-size: 18px;
+    }
+    .mobile-stats-bar {
+      top: 68px;
+    }
+    .app-body {
+      margin-top: 112px;
+    }
   }
 </style>
 </head>
@@ -670,24 +847,47 @@
   </div>
 </div>
 
-<!-- BOTTOM NAV (mobile) -->
-<nav class="bottom-nav">
-  <button class="mob-nav-btn active" data-view="journal" onclick="switchView('journal',this)">
-    <span class="nav-icon">📖</span><span class="nav-label">Journal</span>
+<!-- MENU FLOTTANT MOBILE (FAB) -->
+<div class="fab-menu">
+  <button class="fab-button" onclick="toggleMenu()">
+    <span>🎣</span>
   </button>
-  <button class="mob-nav-btn" data-view="ajouter" onclick="switchView('ajouter',this)">
-    <span class="nav-icon">➕</span><span class="nav-label">Ajouter</span>
-  </button>
-  <button class="mob-nav-btn" data-view="map" onclick="switchView('map',this)">
-    <span class="nav-icon">🗺️</span><span class="nav-label">Carte</span>
-  </button>
-  <button class="mob-nav-btn" data-view="stats" onclick="switchView('stats',this)">
-    <span class="nav-icon">📊</span><span class="nav-label">Stats</span>
-  </button>
-  <button class="mob-nav-btn" onclick="exportData()">
-    <span class="nav-icon">📤</span><span class="nav-label">Exporter</span>
-  </button>
-</nav>
+</div>
+
+<!-- OVERLAY ET POPUP MENU -->
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<div class="menu-popup" id="menuPopup">
+  <div class="menu-popup-header">
+    <div class="icon">🎣</div>
+    <h3>Carnet de Pêche</h3>
+  </div>
+  <div class="menu-items">
+    <button class="menu-item" data-view="journal" onclick="switchViewMobile('journal')">
+      <span class="menu-icon">📖</span>
+      <span>Journal</span>
+    </button>
+    <button class="menu-item" data-view="ajouter" onclick="switchViewMobile('ajouter')">
+      <span class="menu-icon">➕</span>
+      <span>Ajouter une prise</span>
+    </button>
+    <button class="menu-item" data-view="map" onclick="switchViewMobile('map')">
+      <span class="menu-icon">🗺️</span>
+      <span>Carte des spots</span>
+    </button>
+    <button class="menu-item" data-view="stats" onclick="switchViewMobile('stats')">
+      <span class="menu-icon">📊</span>
+      <span>Statistiques</span>
+    </button>
+    <button class="menu-item" onclick="exportDataMobile()">
+      <span class="menu-icon">📤</span>
+      <span>Exporter les données</span>
+    </button>
+    <button class="menu-item" onclick="importDataMobile()">
+      <span class="menu-icon">📥</span>
+      <span>Importer des données</span>
+    </button>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -715,28 +915,21 @@ function init(){
 }
 
 function initMap() {
-  // Centre par défaut sur la France
   const defaultCenter = [46.2276, 2.2137];
-  
   map = L.map('map').setView(defaultCenter, 6);
-  
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
     subdomains: 'abcd',
     maxZoom: 19
   }).addTo(map);
-  
   updateMapMarkers();
 }
 
 function updateMapMarkers() {
   if (!map) return;
-  
-  // Supprimer tous les marqueurs existants
   markers.forEach(marker => map.removeLayer(marker));
   markers = [];
   
-  // Filtrer les entrées avec coordonnées
   const spotsWithCoords = entries.filter(e => e.lat && e.lng);
   
   if (spotsWithCoords.length === 0) {
@@ -752,7 +945,6 @@ function updateMapMarkers() {
     return;
   }
   
-  // Compter les prises par spot
   const spotCount = {};
   spotsWithCoords.forEach(e => {
     const key = `${e.lat},${e.lng}`;
@@ -763,7 +955,6 @@ function updateMapMarkers() {
     if (e.espece) spotCount[key].especes.add(e.espece);
   });
   
-  // Ajouter les marqueurs
   Object.values(spotCount).forEach(spot => {
     const popupContent = `
       <div style="font-family:'DM Sans',sans-serif; min-width:180px;">
@@ -773,19 +964,16 @@ function updateMapMarkers() {
         <span style="font-size:11px; color:#8a9aa5;">${Array.from(spot.especes).slice(0,3).join(', ')}${spot.especes.size > 3 ? '...' : ''}</span>
       </div>
     `;
-    
     const marker = L.marker([spot.lat, spot.lng]).addTo(map);
     marker.bindPopup(popupContent);
     markers.push(marker);
   });
   
-  // Ajuster la vue pour voir tous les marqueurs
   if (markers.length > 0) {
     const group = L.featureGroup(markers);
     map.fitBounds(group.getBounds().pad(0.2));
   }
   
-  // Mettre à jour les statistiques des spots
   const uniqueSpots = Object.keys(spotCount).length;
   const totalCatches = spotsWithCoords.length;
   const totalSpecies = new Set(spotsWithCoords.map(e => e.espece)).size;
@@ -822,7 +1010,6 @@ function getCurrentLocation() {
       document.getElementById('f-lat').value = lat;
       document.getElementById('f-lng').value = lng;
       
-      // Récupérer le nom du lieu via reverse geocoding
       fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
         .then(response => response.json())
         .then(data => {
@@ -870,30 +1057,48 @@ function getCurrentLocation() {
   );
 }
 
+function toggleMenu() {
+  const overlay = document.getElementById('menuOverlay');
+  const popup = document.getElementById('menuPopup');
+  
+  if (overlay.classList.contains('active')) {
+    overlay.classList.remove('active');
+    popup.classList.remove('active');
+  } else {
+    overlay.classList.add('active');
+    popup.classList.add('active');
+  }
+}
+
+function switchViewMobile(name) {
+  toggleMenu();
+  switchView(name, null);
+}
+
+function exportDataMobile() {
+  toggleMenu();
+  exportData();
+}
+
+function importDataMobile() {
+  toggleMenu();
+  document.getElementById('import-file').click();
+}
+
 function switchView(name, btn){
-  // Update views
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   const targetView = document.getElementById('view-'+name);
   if(targetView) targetView.classList.add('active');
   
-  // Update sidebar nav buttons
   document.querySelectorAll('.sidebar .nav-item').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.sidebar .nav-item').forEach(b=>{
     if(b.getAttribute('data-view') === name) b.classList.add('active');
   });
   
-  // Update mobile nav buttons
-  document.querySelectorAll('.mob-nav-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.mob-nav-btn').forEach(b=>{
-    if(b.getAttribute('data-view') === name) b.classList.add('active');
-  });
-  
-  // Update topbar title
   const [sub,main] = topbarTitles[name];
   const topbarTitle = document.getElementById('topbar-title');
   if(topbarTitle) topbarTitle.innerHTML = `<small>${sub}</small>${main}`;
   
-  // Refresh map if needed
   if(name === 'map' && map) {
     setTimeout(() => {
       map.invalidateSize();
@@ -901,7 +1106,6 @@ function switchView(name, btn){
     }, 100);
   }
   
-  // Refresh stats if needed
   if(name === 'stats') updateStats();
 }
 
@@ -1086,7 +1290,6 @@ function renderJournal(){
       </div>`;
   }).join('');
 
-  // Swipe (mobile) - improved
   if(isMobile){
     document.querySelectorAll('.card-wrapper').forEach(wrapper=>{
       const card = wrapper.querySelector('.entry-card');
@@ -1204,7 +1407,6 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-// ── EXPORT ───────────────────────────────────────────────────────────────────
 function exportData(){
   if(!entries.length){ showToast('⚠️ Aucune donnée à exporter'); return; }
   const data = { version:1, exportDate: new Date().toISOString(), entries };
@@ -1219,7 +1421,6 @@ function exportData(){
   showToast(`📤 ${entries.length} sortie(s) exportée(s) !`);
 }
 
-// ── IMPORT ───────────────────────────────────────────────────────────────────
 function importData(event){
   const file = event.target.files[0];
   if(!file) return;

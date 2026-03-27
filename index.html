@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Pêche">
@@ -133,15 +133,18 @@
     position:absolute;top:0;right:0;bottom:0;width:90px;
     background:var(--rouge);display:flex;align-items:center;justify-content:center;
     flex-direction:column;gap:4px;color:white;font-size:20px;cursor:pointer;border-radius:var(--radius);
+    z-index:2;
   }
   .card-delete-bg span{font-size:10px;font-weight:600;}
 
   .entry-card {
     background:white;border-radius:var(--radius);padding:16px 18px;
     border-left:4px solid var(--eau-claire);position:relative;
-    transition:transform 0.25s cubic-bezier(.2,.8,.3,1),box-shadow 0.2s;
+    transition:transform 0.3s cubic-bezier(.2,.8,.3,1);
     will-change:transform;touch-action:pan-y;user-select:none;
     box-shadow:0 1px 6px rgba(0,0,0,0.06);
+    z-index:1;
+    position:relative;
   }
   .entry-card:hover{box-shadow:0 4px 18px rgba(0,0,0,0.1);}
   .entry-card.swiping{transition:none;}
@@ -152,6 +155,7 @@
     background:#fee;border:1.5px solid #fcc;color:var(--rouge);border-radius:8px;
     padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer;
     font-family:'DM Sans',sans-serif;transition:background 0.15s;
+    z-index:3;
   }
   .btn-delete-desktop:hover{background:var(--rouge);color:white;}
 
@@ -285,19 +289,23 @@
     .stats-grid{grid-template-columns:1fr;}
     .form-layout{grid-template-columns:1fr;}
     .form-card{padding:16px;}
+    .form-row-3{grid-template-columns:1fr;gap:10px;}
 
     .bottom-nav{
       display:flex;position:fixed;bottom:0;left:0;right:0;
       background:white;border-top:1px solid #eee;
-      padding:6px 0 env(safe-area-inset-bottom,6px);z-index:100;
+      padding:6px 0 calc(6px + env(safe-area-inset-bottom,0px));z-index:100;
       box-shadow:0 -4px 20px rgba(0,0,0,0.08);
     }
-    .mob-nav-btn{flex:1;background:none;border:none;padding:6px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;}
+    .mob-nav-btn{flex:1;background:none;border:none;padding:6px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all 0.2s;}
     .mob-nav-btn .nav-icon{font-size:22px;}
     .mob-nav-btn .nav-label{font-size:10px;font-weight:500;color:var(--gris);font-family:'DM Sans',sans-serif;}
     .mob-nav-btn.active .nav-label{color:var(--eau-claire);font-weight:700;}
-    .toast{bottom:80px;}
+    .mob-nav-btn:active{transform:scale(0.95);}
+    
+    .toast{bottom:80px;white-space:normal;text-align:center;max-width:90%;}
     .btn-delete-desktop{display:none;}
+    .entry-card-header{padding-right:0;}
   }
 </style>
 </head>
@@ -326,9 +334,9 @@
     <div class="sidebar-stat"><span class="label">Record</span><span class="num" id="s-record" style="font-size:14px">—</span></div>
   </div>
   <nav class="sidebar-nav">
-    <button class="nav-item active" onclick="switchView('journal',this)"><span class="nav-icon">📖</span> Journal</button>
-    <button class="nav-item" onclick="switchView('ajouter',this)"><span class="nav-icon">➕</span> Ajouter une prise</button>
-    <button class="nav-item" onclick="switchView('stats',this)"><span class="nav-icon">📊</span> Statistiques</button>
+    <button class="nav-item active" data-view="journal" onclick="switchView('journal',this)"><span class="nav-icon">📖</span> Journal</button>
+    <button class="nav-item" data-view="ajouter" onclick="switchView('ajouter',this)"><span class="nav-icon">➕</span> Ajouter une prise</button>
+    <button class="nav-item" data-view="stats" onclick="switchView('stats',this)"><span class="nav-icon">📊</span> Statistiques</button>
     <div style="height:1px;background:rgba(255,255,255,0.1);margin:10px 4px"></div>
     <button class="nav-item" onclick="exportData()"><span class="nav-icon">📤</span> Exporter</button>
     <button class="nav-item" onclick="document.getElementById('import-file').click()"><span class="nav-icon">📥</span> Importer</button>
@@ -421,12 +429,12 @@
           <div class="form-group">
             <label class="form-label">🌤 Météo</label>
             <div class="meteo-btns">
-              <button class="meteo-btn" onclick="toggleMeteo(this,'☀️ Soleil')">☀️ Soleil</button>
-              <button class="meteo-btn" onclick="toggleMeteo(this,'⛅ Nuageux')">⛅ Nuageux</button>
-              <button class="meteo-btn" onclick="toggleMeteo(this,'🌧 Pluie')">🌧 Pluie</button>
-              <button class="meteo-btn" onclick="toggleMeteo(this,'💨 Vent')">💨 Vent</button>
-              <button class="meteo-btn" onclick="toggleMeteo(this,'🌫 Brume')">🌫 Brume</button>
-              <button class="meteo-btn" onclick="toggleMeteo(this,'❄️ Froid')">❄️ Froid</button>
+              <button type="button" class="meteo-btn" onclick="toggleMeteo(this,'☀️ Soleil')">☀️ Soleil</button>
+              <button type="button" class="meteo-btn" onclick="toggleMeteo(this,'⛅ Nuageux')">⛅ Nuageux</button>
+              <button type="button" class="meteo-btn" onclick="toggleMeteo(this,'🌧 Pluie')">🌧 Pluie</button>
+              <button type="button" class="meteo-btn" onclick="toggleMeteo(this,'💨 Vent')">💨 Vent</button>
+              <button type="button" class="meteo-btn" onclick="toggleMeteo(this,'🌫 Brume')">🌫 Brume</button>
+              <button type="button" class="meteo-btn" onclick="toggleMeteo(this,'❄️ Froid')">❄️ Froid</button>
             </div>
           </div>
           <div class="form-row-3">
@@ -451,18 +459,18 @@
           <div class="form-group">
             <label class="form-label">⭐ Note de la sortie</label>
             <div class="stars-input">
-              <button class="star-btn" onclick="setStar(1)">⭐</button>
-              <button class="star-btn" onclick="setStar(2)">⭐</button>
-              <button class="star-btn" onclick="setStar(3)">⭐</button>
-              <button class="star-btn" onclick="setStar(4)">⭐</button>
-              <button class="star-btn" onclick="setStar(5)">⭐</button>
+              <button type="button" class="star-btn" onclick="setStar(1)">⭐</button>
+              <button type="button" class="star-btn" onclick="setStar(2)">⭐</button>
+              <button type="button" class="star-btn" onclick="setStar(3)">⭐</button>
+              <button type="button" class="star-btn" onclick="setStar(4)">⭐</button>
+              <button type="button" class="star-btn" onclick="setStar(5)">⭐</button>
             </div>
           </div>
           <div class="form-group">
             <label class="form-label">🏅 Statut</label>
             <div class="meteo-btns">
-              <button class="meteo-btn" id="btn-trophy" onclick="toggleTrophy(this)">🏆 Trophée</button>
-              <button class="meteo-btn" id="btn-relache" onclick="toggleRelache(this)">↩️ Remis à l'eau</button>
+              <button type="button" class="meteo-btn" id="btn-trophy" onclick="toggleTrophy(this)">🏆 Trophée</button>
+              <button type="button" class="meteo-btn" id="btn-relache" onclick="toggleRelache(this)">↩️ Remis à l'eau</button>
             </div>
           </div>
           <div class="form-group">
@@ -494,13 +502,13 @@
 
 <!-- BOTTOM NAV (mobile) -->
 <nav class="bottom-nav">
-  <button class="mob-nav-btn active" onclick="switchView('journal',this)" id="mnav-journal">
+  <button class="mob-nav-btn active" data-view="journal" onclick="switchView('journal',this)">
     <span class="nav-icon">📖</span><span class="nav-label">Journal</span>
   </button>
-  <button class="mob-nav-btn" onclick="switchView('ajouter',this)" id="mnav-ajouter">
+  <button class="mob-nav-btn" data-view="ajouter" onclick="switchView('ajouter',this)">
     <span class="nav-icon">➕</span><span class="nav-label">Ajouter</span>
   </button>
-  <button class="mob-nav-btn" onclick="switchView('stats',this)" id="mnav-stats">
+  <button class="mob-nav-btn" data-view="stats" onclick="switchView('stats',this)">
     <span class="nav-icon">📊</span><span class="nav-label">Stats</span>
   </button>
   <button class="mob-nav-btn" onclick="exportData()">
@@ -525,22 +533,36 @@ const topbarTitles = {
 
 function init(){
   const now=new Date(); now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
-  document.getElementById('f-date').value=now.toISOString().slice(0,16);
+  const dateInput = document.getElementById('f-date');
+  if(dateInput) dateInput.value = now.toISOString().slice(0,16);
   renderJournal(); updateStats(); updateAllStats();
 }
 
 function switchView(name, btn){
+  // Update views
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-'+name).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  const targetView = document.getElementById('view-'+name);
+  if(targetView) targetView.classList.add('active');
+  
+  // Update sidebar nav buttons
+  document.querySelectorAll('.sidebar .nav-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.sidebar .nav-item').forEach(b=>{
+    if(b.getAttribute('data-view') === name) b.classList.add('active');
+  });
+  
+  // Update mobile nav buttons
   document.querySelectorAll('.mob-nav-btn').forEach(b=>b.classList.remove('active'));
-  // sidebar
-  document.querySelectorAll('.nav-item').forEach(b=>{ if(b.textContent.trim().toLowerCase().includes(name==='ajouter'?'ajouter':name==='stats'?'stat':'journal')) b.classList.add('active'); });
-  // mobile nav
-  const mn=document.getElementById('mnav-'+name); if(mn) mn.classList.add('active');
-  const [sub,main]=topbarTitles[name];
-  document.getElementById('topbar-title').innerHTML=`<small>${sub}</small>${main}`;
-  if(name==='stats') updateStats();
+  document.querySelectorAll('.mob-nav-btn').forEach(b=>{
+    if(b.getAttribute('data-view') === name) b.classList.add('active');
+  });
+  
+  // Update topbar title
+  const [sub,main] = topbarTitles[name];
+  const topbarTitle = document.getElementById('topbar-title');
+  if(topbarTitle) topbarTitle.innerHTML = `<small>${sub}</small>${main}`;
+  
+  // Refresh stats if needed
+  if(name === 'stats') updateStats();
 }
 
 function setFilter(f,btn){
@@ -557,20 +579,38 @@ function setStar(n){
 
 function toggleMeteo(btn,val){
   btn.classList.toggle('selected');
-  selectedMeteo.includes(val)?selectedMeteo=selectedMeteo.filter(v=>v!==val):selectedMeteo.push(val);
+  if(selectedMeteo.includes(val)){
+    selectedMeteo = selectedMeteo.filter(v=>v!==val);
+  } else {
+    selectedMeteo.push(val);
+  }
 }
-function toggleTrophy(btn){isTrophy=!isTrophy;btn.classList.toggle('selected',isTrophy);}
-function toggleRelache(btn){isRelache=!isRelache;btn.classList.toggle('selected',isRelache);}
+
+function toggleTrophy(btn){
+  isTrophy = !isTrophy;
+  btn.classList.toggle('selected', isTrophy);
+}
+
+function toggleRelache(btn){
+  isRelache = !isRelache;
+  btn.classList.toggle('selected', isRelache);
+}
 
 function previewPhoto(e){
-  const file=e.target.files[0]; if(!file) return;
+  const file=e.target.files[0]; 
+  if(!file) return;
   const reader=new FileReader();
   reader.onload=ev=>{
     photoData=ev.target.result;
-    document.getElementById('photo-preview').style.display='block';
-    document.getElementById('photo-preview').src=photoData;
-    document.getElementById('photo-icon').style.display='none';
-    document.getElementById('photo-text').textContent='✅ Photo ajoutée';
+    const preview = document.getElementById('photo-preview');
+    const icon = document.getElementById('photo-icon');
+    const text = document.getElementById('photo-text');
+    if(preview){
+      preview.style.display='block';
+      preview.src=photoData;
+    }
+    if(icon) icon.style.display='none';
+    if(text) text.textContent='✅ Photo ajoutée';
   };
   reader.readAsDataURL(file);
 }
@@ -579,7 +619,9 @@ function saveEntry(){
   const espece=document.getElementById('f-espece').value;
   if(!espece){showToast('⚠️ Sélectionne une espèce !');return;}
   const entry={
-    id:Date.now(), date:document.getElementById('f-date').value, espece,
+    id:Date.now(), 
+    date:document.getElementById('f-date').value, 
+    espece,
     taille:document.getElementById('f-taille').value||null,
     poids:document.getElementById('f-poids').value||null,
     lieu:document.getElementById('f-lieu').value,
@@ -588,49 +630,74 @@ function saveEntry(){
     tempAir:document.getElementById('f-temp-air').value||null,
     tempEau:document.getElementById('f-temp-eau').value||null,
     lune:document.getElementById('f-lune').value,
-    stars:currentStars, trophy:isTrophy, relache:isRelache,
-    notes:document.getElementById('f-notes').value, photo:photoData
+    stars:currentStars, 
+    trophy:isTrophy, 
+    relache:isRelache,
+    notes:document.getElementById('f-notes').value, 
+    photo:photoData
   };
   entries.unshift(entry);
   localStorage.setItem('peche-entries',JSON.stringify(entries));
-  resetForm(); updateAllStats();
+  resetForm(); 
+  updateAllStats();
   showToast('🎣 Sortie enregistrée !');
-  switchView('journal',null); renderJournal();
+  switchView('journal',null); 
+  renderJournal();
 }
 
 function resetForm(){
   ['f-espece','f-taille','f-poids','f-lieu','f-technique','f-temp-air','f-temp-eau','f-lune','f-notes']
-    .forEach(id=>document.getElementById(id).value='');
+    .forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.value='';
+    });
   document.querySelectorAll('.meteo-btn').forEach(b=>b.classList.remove('selected'));
   document.querySelectorAll('.star-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('btn-trophy').classList.remove('selected');
-  document.getElementById('btn-relache').classList.remove('selected');
-  document.getElementById('photo-preview').style.display='none';
-  document.getElementById('photo-icon').style.display='block';
-  document.getElementById('photo-text').textContent='Ajouter une photo';
-  selectedMeteo=[];currentStars=0;isTrophy=false;isRelache=false;photoData=null;
-  const now=new Date(); now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
-  document.getElementById('f-date').value=now.toISOString().slice(0,16);
+  const trophyBtn = document.getElementById('btn-trophy');
+  const relacheBtn = document.getElementById('btn-relache');
+  if(trophyBtn) trophyBtn.classList.remove('selected');
+  if(relacheBtn) relacheBtn.classList.remove('selected');
+  
+  const preview = document.getElementById('photo-preview');
+  const icon = document.getElementById('photo-icon');
+  const text = document.getElementById('photo-text');
+  if(preview) preview.style.display='none';
+  if(icon) icon.style.display='block';
+  if(text) text.textContent='Ajouter une photo';
+  
+  selectedMeteo=[];
+  currentStars=0;
+  isTrophy=false;
+  isRelache=false;
+  photoData=null;
+  
+  const now=new Date(); 
+  now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+  const dateInput = document.getElementById('f-date');
+  if(dateInput) dateInput.value = now.toISOString().slice(0,16);
 }
 
 function deleteEntry(id){
   if(!confirm('Supprimer cette entrée ?')) return;
   entries=entries.filter(e=>e.id!==id);
   localStorage.setItem('peche-entries',JSON.stringify(entries));
-  renderJournal(); updateAllStats();
+  renderJournal(); 
+  updateAllStats();
   showToast('🗑 Entrée supprimée');
 }
 
 function renderJournal(){
-  const search=document.getElementById('search-input').value.toLowerCase();
+  const search=document.getElementById('search-input')?.value.toLowerCase() || '';
   let filtered=entries.filter(e=>{
     if(currentFilter==='trophy') return e.trophy;
-    const mF=currentFilter==='tous'||e.espece.includes(currentFilter);
-    const mS=!search||e.espece.toLowerCase().includes(search)||(e.lieu&&e.lieu.toLowerCase().includes(search));
-    return mF&&mS;
+    const mF = currentFilter==='tous' || (e.espece && e.espece.includes(currentFilter));
+    const mS = !search || (e.espece && e.espece.toLowerCase().includes(search)) || (e.lieu && e.lieu.toLowerCase().includes(search));
+    return mF && mS;
   });
 
   const list=document.getElementById('journal-list');
+  if(!list) return;
+  
   if(!filtered.length){
     list.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><span class="icon">🎣</span><p>Aucune sortie enregistrée.<br>Ajoutez votre première prise !</p></div>`;
     return;
@@ -642,7 +709,9 @@ function renderJournal(){
     const date=e.date?new Date(e.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'';
     const heure=e.date?new Date(e.date).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'';
     const stars=e.stars?'⭐'.repeat(e.stars):'';
-    const tags=[]; if(e.technique)tags.push(e.technique); if(e.relache)tags.push("↩️ Remis à l'eau");
+    const tags=[]; 
+    if(e.technique) tags.push(e.technique); 
+    if(e.relache) tags.push("↩️ Remis à l'eau");
     return `
       <div class="card-wrapper" style="animation-delay:${idx*0.04}s">
         ${isMobile?`<div class="card-delete-bg" onclick="deleteEntry(${e.id})">🗑<span>Supprimer</span></div>`:''}
@@ -650,7 +719,7 @@ function renderJournal(){
           <button class="btn-delete-desktop" onclick="deleteEntry(${e.id})">🗑 Supprimer</button>
           <div class="entry-card-header">
             <div>
-              <span class="entry-species">${e.espece}</span>
+              <span class="entry-species">${escapeHtml(e.espece)}</span>
               ${e.trophy?'<span class="photo-badge">🏆 Trophée</span>':''}
             </div>
             <div class="entry-date">${date}<br>${heure}</div>
@@ -658,84 +727,130 @@ function renderJournal(){
           <div class="entry-meta">
             ${e.taille?`<div class="entry-meta-item"><span>📏</span>${e.taille} cm</div>`:''}
             ${e.poids?`<div class="entry-meta-item"><span>⚖️</span>${formatPoids(e.poids)}</div>`:''}
-            ${e.lieu?`<div class="entry-meta-item"><span>📍</span>${e.lieu}</div>`:''}
+            ${e.lieu?`<div class="entry-meta-item"><span>📍</span>${escapeHtml(e.lieu)}</div>`:''}
             ${e.meteo&&e.meteo.length?`<div class="entry-meta-item">${e.meteo.join(' ')}</div>`:''}
           </div>
           ${stars?`<div class="entry-stars">${stars}</div>`:''}
-          ${tags.length?`<div class="entry-tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`:''}
-          ${e.notes?`<div class="entry-notes">"${e.notes.slice(0,100)}${e.notes.length>100?'…':''}"</div>`:''}
-          ${e.photo?`<div style="margin-top:10px"><img src="${e.photo}" style="width:100%;height:130px;object-fit:cover;border-radius:10px"></div>`:''}
+          ${tags.length?`<div class="entry-tags">${tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>`:''}
+          ${e.notes?`<div class="entry-notes">"${escapeHtml(e.notes.slice(0,100))}${e.notes.length>100?'…':''}"</div>`:''}
+          ${e.photo?`<div style="margin-top:10px"><img src="${e.photo}" style="width:100%;height:130px;object-fit:cover;border-radius:10px" alt="Photo de prise"></div>`:''}
         </div>
       </div>`;
   }).join('');
 
-  // Swipe (mobile)
+  // Swipe (mobile) - improved
   if(isMobile){
-    document.querySelectorAll('.entry-card').forEach(card=>{
-      let sx=0,cx=0,d=false;
-      card.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;d=true;card.classList.add('swiping');},{passive:true});
-      card.addEventListener('touchmove',e=>{
-        if(!d)return; cx=Math.min(0,Math.max(e.touches[0].clientX-sx,-120));
-        card.style.transform=`translateX(${cx}px)`;
-      },{passive:true});
-      card.addEventListener('touchend',()=>{
-        d=false;card.classList.remove('swiping');
-        card.style.transform=cx<-80?'translateX(-90px)':'';cx=0;
+    document.querySelectorAll('.card-wrapper').forEach(wrapper=>{
+      const card = wrapper.querySelector('.entry-card');
+      if(!card) return;
+      let startX = 0, currentX = 0, isDragging = false;
+      
+      card.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+        card.style.transition = 'none';
+      }, {passive: true});
+      
+      card.addEventListener('touchmove', (e) => {
+        if(!isDragging) return;
+        currentX = e.touches[0].clientX - startX;
+        if(currentX < 0) {
+          const translate = Math.max(-90, currentX);
+          card.style.transform = `translateX(${translate}px)`;
+        }
+      }, {passive: true});
+      
+      card.addEventListener('touchend', () => {
+        isDragging = false;
+        card.style.transition = 'transform 0.3s cubic-bezier(.2,.8,.3,1)';
+        if(currentX < -50) {
+          card.style.transform = 'translateX(-90px)';
+        } else {
+          card.style.transform = '';
+        }
+        currentX = 0;
       });
     });
   }
 }
 
-function formatPoids(g){ return g>=1000?(g/1000).toFixed(2).replace(/\.?0+$/,'')+' kg':g+' g'; }
+function escapeHtml(str) {
+  if(!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if(m === '&') return '&amp;';
+    if(m === '<') return '&lt;';
+    if(m === '>') return '&gt;';
+    return m;
+  });
+}
+
+function formatPoids(g){ 
+  if(!g) return '';
+  return g>=1000?(g/1000).toFixed(2).replace(/\.?0+$/,'')+' kg':g+' g'; 
+}
 
 function updateAllStats(){
   const total=entries.length;
   const records=entries.filter(e=>e.poids);
   const rec=records.length?formatPoids(Math.max(...records.map(e=>parseInt(e.poids)))):'—';
   const species=new Set(entries.map(e=>e.espece)).size;
-  ['m-total','m-poissons'].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=i===0?total:species;});
-  const mr=document.getElementById('m-record');if(mr)mr.textContent=rec;
-  const st=document.getElementById('s-total');if(st)st.textContent=total;
-  const sr=document.getElementById('s-record');if(sr)sr.textContent=rec;
+  
+  const mTotal = document.getElementById('m-total');
+  const mPoissons = document.getElementById('m-poissons');
+  const mRecord = document.getElementById('m-record');
+  const sTotal = document.getElementById('s-total');
+  const sRecord = document.getElementById('s-record');
+  
+  if(mTotal) mTotal.textContent = total;
+  if(mPoissons) mPoissons.textContent = species;
+  if(mRecord) mRecord.textContent = rec;
+  if(sTotal) sTotal.textContent = total;
+  if(sRecord) sRecord.textContent = rec;
 }
 
 function updateStats(){
   const el=document.getElementById('stats-content');
+  if(!el) return;
+  
   if(!entries.length){
     el.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><span class="icon">📊</span><p>Pas encore de données.</p></div>`;
     return;
   }
-  const sp={};entries.forEach(e=>{sp[e.espece]=(sp[e.espece]||0)+1;});
+  const sp={};
+  entries.forEach(e=>{sp[e.espece]=(sp[e.espece]||0)+1;});
   const sorted=Object.entries(sp).sort((a,b)=>b[1]-a[1]);
-  const maxC=sorted[0][1];
+  const maxC=sorted[0]?sorted[0][1]:1;
   const wP=[...entries].filter(e=>e.poids).sort((a,b)=>b.poids-a.poids);
   const wT=[...entries].filter(e=>e.taille).sort((a,b)=>b.taille-a.taille);
-  const lx={};entries.forEach(e=>{if(e.lieu)lx[e.lieu]=(lx[e.lieu]||0)+1;});
+  const lx={};
+  entries.forEach(e=>{if(e.lieu)lx[e.lieu]=(lx[e.lieu]||0)+1;});
   const tL=Object.entries(lx).sort((a,b)=>b[1]-a[1])[0];
 
   el.innerHTML=`
     <div class="stat-card">
       <div class="stat-card-title">🐟 Espèces capturées</div>
-      ${sorted.map(([s,c])=>`<div class="species-bar"><span class="species-name">${s}</span><div class="bar-track"><div class="bar-fill" style="width:${c/maxC*100}%"></div></div><span class="bar-count">${c}</span></div>`).join('')}
+      ${sorted.map(([s,c])=>`<div class="species-bar"><span class="species-name">${escapeHtml(s)}</span><div class="bar-track"><div class="bar-fill" style="width:${c/maxC*100}%"></div></div><span class="bar-count">${c}</span></div>`).join('')}
     </div>
     ${wP.length||wT.length?`
     <div class="stat-card">
       <div class="stat-card-title">🏆 Records</div>
-      ${wP[0]?`<div class="record-item"><span class="record-icon">⚖️</span><div class="record-info"><div class="species">${wP[0].espece}</div><div class="detail">${wP[0].lieu||'Lieu non précisé'}</div></div><span class="record-value">${formatPoids(wP[0].poids)}</span></div>`:''}
-      ${wT[0]?`<div class="record-item"><span class="record-icon">📏</span><div class="record-info"><div class="species">${wT[0].espece}</div><div class="detail">${wT[0].lieu||'Lieu non précisé'}</div></div><span class="record-value">${wT[0].taille} cm</span></div>`:''}
+      ${wP[0]?`<div class="record-item"><span class="record-icon">⚖️</span><div class="record-info"><div class="species">${escapeHtml(wP[0].espece)}</div><div class="detail">${escapeHtml(wP[0].lieu||'Lieu non précisé')}</div></div><span class="record-value">${formatPoids(wP[0].poids)}</span></div>`:''}
+      ${wT[0]?`<div class="record-item"><span class="record-icon">📏</span><div class="record-info"><div class="species">${escapeHtml(wT[0].espece)}</div><div class="detail">${escapeHtml(wT[0].lieu||'Lieu non précisé')}</div></div><span class="record-value">${wT[0].taille} cm</span></div>`:''}
     </div>`:''}
     <div class="stat-card">
       <div class="stat-card-title">📋 Résumé</div>
       <div class="record-item"><span class="record-icon">🎣</span><div class="record-info"><div class="species">Total sorties</div></div><span class="record-value">${entries.length}</span></div>
       <div class="record-item"><span class="record-icon">🏆</span><div class="record-info"><div class="species">Trophées</div></div><span class="record-value">${entries.filter(e=>e.trophy).length}</span></div>
-      ${tL?`<div class="record-item"><span class="record-icon">📍</span><div class="record-info"><div class="species">Spot favori</div><div class="detail">${tL[1]} visite${tL[1]>1?'s':''}</div></div><span class="record-value" style="font-size:13px;max-width:110px;text-align:right">${tL[0]}</span></div>`:''}
+      ${tL?`<div class="record-item"><span class="record-icon">📍</span><div class="record-info"><div class="species">Spot favori</div><div class="detail">${tL[1]} visite${tL[1]>1?'s':''}</div></div><span class="record-value" style="font-size:13px;max-width:110px;text-align:right">${escapeHtml(tL[0])}</span></div>`:''}
       <div class="record-item"><span class="record-icon">↩️</span><div class="record-info"><div class="species">Remises à l'eau</div></div><span class="record-value">${entries.filter(e=>e.relache).length}</span></div>
     </div>`;
 }
 
 function showToast(msg){
   const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
+  if(!t) return;
+  t.textContent=msg;
+  t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
 }
 
@@ -762,26 +877,30 @@ function importData(event){
   reader.onload = ev => {
     try {
       const data = JSON.parse(ev.target.result);
-      const imported = data.entries || data; // support ancien format tableau direct
+      const imported = data.entries || data;
       if(!Array.isArray(imported)) throw new Error('Format invalide');
       const avant = entries.length;
-      // Fusionner sans doublons (par id)
       const existingIds = new Set(entries.map(e=>e.id));
-      const nouveaux = imported.filter(e=>!existingIds.has(e.id));
+      const nouveaux = imported.filter(e=>e.id && !existingIds.has(e.id));
       entries = [...nouveaux, ...entries];
       localStorage.setItem('peche-entries', JSON.stringify(entries));
-      renderJournal(); updateAllStats();
+      renderJournal(); 
+      updateAllStats();
+      if(document.getElementById('view-stats')?.classList.contains('active')) updateStats();
       showToast(`📥 ${nouveaux.length} nouvelle(s) sortie(s) importée(s) !`);
     } catch(err) {
       showToast('❌ Fichier invalide');
     }
-    event.target.value = ''; // reset input
+    event.target.value = '';
   };
   reader.readAsText(file);
 }
 
 let rt;
-window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(renderJournal,200); });
+window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{
+  renderJournal();
+  if(document.getElementById('view-stats')?.classList.contains('active')) updateStats();
+},200); });
 
 init();
 </script>

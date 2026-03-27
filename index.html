@@ -665,4 +665,896 @@
     <div class="sidebar-stat"><span class="label">Record</span><span class="num" id="s-record" style="font-size:14px">—</span></div>
   </div>
   <nav class="sidebar-nav">
-    <button class="nav-item active" data-view="journal" onclick="switchView('journal',this)"><span class="nav-icon">📖</span> Journal</button
+    <button class="nav-item active" data-view="journal" onclick="switchView('journal',this)"><span class="nav-icon">📖</span> Journal</button>
+    <button class="nav-item" data-view="ajouter" onclick="switchView('ajouter',this)"><span class="nav-icon">➕</span> Ajouter une prise</button>
+    <button class="nav-item" data-view="map" onclick="switchView('map',this)"><span class="nav-icon">🗺️</span> Carte des spots</button>
+    <button class="nav-item" data-view="stats" onclick="switchView('stats',this)"><span class="nav-icon">📊</span> Statistiques</button>
+    <div style="height:1px;background:rgba(255,255,255,0.1);margin:10px 4px"></div>
+    <button class="nav-item" onclick="exportData()"><span class="nav-icon">📤</span> Exporter</button>
+    <button class="nav-item" onclick="document.getElementById('import-file').click()"><span class="nav-icon">📥</span> Importer</button>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+  </nav>
+</aside>
+
+<!-- APP BODY -->
+<div class="app-body">
+
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title"><small>Mes sorties</small>Journal de pêche</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn-secondary" onclick="exportData()" title="Exporter sauvegarde">📤 Exporter</button>
+      <button class="btn-secondary" onclick="document.getElementById('import-file').click()" title="Importer sauvegarde">📥 Importer</button>
+      <button class="btn-primary" onclick="switchView('ajouter',null)">➕ Nouvelle prise</button>
+    </div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- JOURNAL -->
+    <div class="view active" id="view-journal">
+      <div class="journal-toolbar">
+        <div class="search-box"><input type="text" placeholder="Rechercher espèce, lieu…" id="search-input" oninput="renderJournal()"></div>
+      </div>
+      <div class="filter-pills">
+        <button class="filter-pill active" onclick="setFilter('tous',this)">Toutes</button>
+        <button class="filter-pill" onclick="setFilter('Carpe',this)">🐟 Carpe</button>
+        <button class="filter-pill" onclick="setFilter('Brochet',this)">🦈 Brochet</button>
+        <button class="filter-pill" onclick="setFilter('Truite',this)">🐠 Truite</button>
+        <button class="filter-pill" onclick="setFilter('Sandre',this)">🐡 Sandre</button>
+        <button class="filter-pill" onclick="setFilter('Perche',this)">Perche</button>
+        <button class="filter-pill" onclick="setFilter('trophy',this)">🏆 Trophées</button>
+        <button class="filter-pill" onclick="setFilter('capot',this)">🎣 Capot</button>
+      </div>
+      <div class="cards-grid" id="journal-list"></div>
+    </div>
+
+    <!-- AJOUTER -->
+    <div class="view" id="view-ajouter">
+      <div class="form-layout">
+
+        <div class="form-card">
+          <div class="form-card-title">
+            <span class="icon">📋</span>
+            Informations principales
+          </div>
+          <div class="form-group">
+            <label class="form-label">📅 Date & Heure</label>
+            <input type="datetime-local" class="form-input" id="f-date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">🐟 Espèce</label>
+            <select class="form-select" id="f-espece" onchange="toggleCapotMode()">
+              <option value="">— Sélectionner —</option>
+              <option>Carpe</option><option>Brochet</option><option>Truite fario</option>
+              <option>Truite arc-en-ciel</option><option>Sandre</option><option>Perche</option>
+              <option>Gardon</option><option>Rotengle</option><option>Tanche</option>
+              <option>Anguille</option><option>Black-bass</option><option>Silure</option>
+              <option>Barbeau</option><option>Chevesne</option><option>Ablette</option><option>Autre</option>
+            </select>
+          </div>
+          <div class="form-row" id="fish-details-row">
+            <div class="form-group">
+              <label class="form-label">📏 Taille (cm)</label>
+              <input type="number" class="form-input" id="f-taille" placeholder="ex: 45">
+            </div>
+            <div class="form-group">
+              <label class="form-label">⚖️ Poids (kg)</label>
+              <input type="number" step="0.01" class="form-input" id="f-poids" placeholder="ex: 1.2">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">📍 Lieu</label>
+            <div class="location-row">
+              <input type="text" class="form-input" id="f-lieu" placeholder="Nom du spot">
+              <button type="button" class="btn-location" onclick="getCurrentLocation()" title="Utiliser ma position">📍</button>
+            </div>
+          </div>
+          <input type="hidden" id="f-lat">
+          <input type="hidden" id="f-lng">
+          <div class="form-group">
+            <label class="form-label">🎣 Technique</label>
+            <select class="form-select" id="f-technique">
+              <option value="">— Technique —</option>
+              <option>Carpe — Cheveu</option><option>Lancer — Cuillère</option>
+              <option>Lancer — Leurre souple</option><option>Lancer — Popper</option>
+              <option>Mouche sèche</option><option>Mouche noyée</option>
+              <option>Toc / Vairon</option><option>Feeder</option>
+              <option>Bolognaise</option><option>Pêche au coup</option>
+              <option>Pêche au posé</option><option>Pêche au vif</option><option>Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <button type="button" class="btn-capot" id="btn-capot" onclick="toggleCapot()">
+              🎣 Capot (sortie sans prise)
+            </button>
+            <small style="display:block; margin-top:6px; color:var(--gris); font-size:11px;">Activez pour enregistrer une sortie sans poisson capturé</small>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">
+            <span class="icon">🌤</span>
+            Conditions & Notes
+          </div>
+          <div class="form-group">
+            <label class="form-label">🌤 Météo</label>
+            <div class="meteo-btns">
+              <button type="button" class="meteo-btn" onclick="toggleMeteo(this,'☀️ Soleil')">☀️ Soleil</button>
+              <button type="button" class="meteo-btn" onclick="toggleMeteo(this,'⛅ Nuageux')">⛅ Nuageux</button>
+              <button type="button" class="meteo-btn" onclick="toggleMeteo(this,'🌧 Pluie')">🌧 Pluie</button>
+              <button type="button" class="meteo-btn" onclick="toggleMeteo(this,'💨 Vent')">💨 Vent</button>
+              <button type="button" class="meteo-btn" onclick="toggleMeteo(this,'🌫 Brume')">🌫 Brume</button>
+              <button type="button" class="meteo-btn" onclick="toggleMeteo(this,'❄️ Froid')">❄️ Froid</button>
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">🌡 Air (°C)</label>
+              <input type="number" class="form-input" id="f-temp-air" placeholder="18">
+            </div>
+            <div class="form-group">
+              <label class="form-label">💧 Eau (°C)</label>
+              <input type="number" class="form-input" id="f-temp-eau" placeholder="14">
+            </div>
+            <div class="form-group">
+              <label class="form-label">🌙 Lune</label>
+              <select class="form-select" id="f-lune">
+                <option value="">—</option>
+                <option>🌑 NL</option><option>🌒 CC</option><option>🌓 PQ</option>
+                <option>🌔 GC</option><option>🌕 PL</option><option>🌖 GD</option>
+                <option>🌗 DQ</option><option>🌘 CD</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">⭐ Note de la sortie</label>
+            <div class="stars-input">
+              <button type="button" class="star-btn" onclick="setStar(1)">⭐</button>
+              <button type="button" class="star-btn" onclick="setStar(2)">⭐</button>
+              <button type="button" class="star-btn" onclick="setStar(3)">⭐</button>
+              <button type="button" class="star-btn" onclick="setStar(4)">⭐</button>
+              <button type="button" class="star-btn" onclick="setStar(5)">⭐</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">🏅 Statut</label>
+            <div class="meteo-btns">
+              <button type="button" class="meteo-btn" id="btn-trophy" onclick="toggleTrophy(this)">🏆 Trophée</button>
+              <button type="button" class="meteo-btn" id="btn-relache" onclick="toggleRelache(this)">↩️ Remis à l'eau</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">📝 Notes</label>
+            <textarea class="form-textarea" id="f-notes" placeholder="Appâts, conditions, anecdotes…"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">📸 Photo</label>
+            <div class="photo-upload-area" onclick="document.getElementById('f-photo').click()">
+              <input type="file" id="f-photo" accept="image/*" onchange="previewPhoto(event)">
+              <div class="photo-upload-icon">📷</div>
+              <div class="photo-upload-text">Ajouter une photo</div>
+              <img class="photo-preview" id="photo-preview" alt="Aperçu photo">
+            </div>
+          </div>
+          <button class="btn-submit" onclick="saveEntry()">✅ Enregistrer la sortie</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MAP -->
+    <div class="view" id="view-map">
+      <div class="map-container">
+        <div class="map-title">
+          <span>🗺️</span>
+          Mes spots de pêche
+        </div>
+        <div id="map"></div>
+        <div class="spots-stats" id="spots-stats"></div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="view" id="view-stats">
+      <div class="stats-grid" id="stats-content"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MENU FLOTTANT MOBILE (FAB) -->
+<div class="fab-menu">
+  <button class="fab-button" onclick="toggleMenu()">
+    <span>🎣</span>
+  </button>
+</div>
+
+<!-- OVERLAY ET POPUP MENU -->
+<div class="menu-overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+<div class="menu-popup" id="menuPopup">
+  <div class="menu-popup-header">
+    <div class="icon">🎣</div>
+    <h3>Carnet de Pêche</h3>
+  </div>
+  <div class="menu-items">
+    <button class="menu-item" data-view="journal" onclick="switchViewMobile('journal')">
+      <span class="menu-icon">📖</span>
+      <span>Journal</span>
+    </button>
+    <button class="menu-item" data-view="ajouter" onclick="switchViewMobile('ajouter')">
+      <span class="menu-icon">➕</span>
+      <span>Ajouter une prise</span>
+    </button>
+    <button class="menu-item" data-view="map" onclick="switchViewMobile('map')">
+      <span class="menu-icon">🗺️</span>
+      <span>Carte des spots</span>
+    </button>
+    <button class="menu-item" data-view="stats" onclick="switchViewMobile('stats')">
+      <span class="menu-icon">📊</span>
+      <span>Statistiques</span>
+    </button>
+    <button class="menu-item" onclick="exportDataMobile()">
+      <span class="menu-icon">📤</span>
+      <span>Exporter les données</span>
+    </button>
+    <button class="menu-item" onclick="importDataMobile()">
+      <span class="menu-icon">📥</span>
+      <span>Importer des données</span>
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Leaflet JS pour la carte -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+let entries = JSON.parse(localStorage.getItem('peche-entries')||'[]');
+let currentFilter='tous', currentStars=0, selectedMeteo=[], isTrophy=false, isRelache=false, photoData=null;
+let isCapotMode = false;
+let map = null;
+let markers = [];
+
+const topbarTitles = {
+  journal:['Mes sorties','Journal de pêche'],
+  ajouter:['Nouvelle entrée','Ajouter une prise'],
+  map:['Carte des spots','Mes spots de pêche'],
+  stats:["Vue d'ensemble",'Statistiques']
+};
+
+function init(){
+  const now=new Date(); now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+  const dateInput = document.getElementById('f-date');
+  if(dateInput) dateInput.value = now.toISOString().slice(0,16);
+  renderJournal(); updateStats(); updateAllStats();
+  initMap();
+}
+
+function initMap() {
+  const defaultCenter = [46.2276, 2.2137];
+  map = L.map('map').setView(defaultCenter, 6);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(map);
+  updateMapMarkers();
+}
+
+function updateMapMarkers() {
+  if (!map) return;
+  markers.forEach(marker => map.removeLayer(marker));
+  markers = [];
+  
+  const spotsWithCoords = entries.filter(e => e.lat && e.lng);
+  
+  if (spotsWithCoords.length === 0) {
+    document.getElementById('spots-stats').innerHTML = `
+      <div class="spot-stat">
+        <div class="number">0</div>
+        <div class="label">Spots géolocalisés</div>
+      </div>
+      <div class="spot-stat">
+        <div class="label">Ajoutez des lieux avec la géolocalisation pour les voir sur la carte !</div>
+      </div>
+    `;
+    return;
+  }
+  
+  const spotCount = {};
+  spotsWithCoords.forEach(e => {
+    const key = `${e.lat},${e.lng}`;
+    if (!spotCount[key]) {
+      spotCount[key] = { count: 0, especes: new Set(), lieu: e.lieu, lat: e.lat, lng: e.lng };
+    }
+    spotCount[key].count++;
+    if (e.espece) spotCount[key].especes.add(e.espece);
+  });
+  
+  Object.values(spotCount).forEach(spot => {
+    const popupContent = `
+      <div style="font-family:'DM Sans',sans-serif; min-width:180px;">
+        <strong style="font-size:14px; color:#1a3a4a;">📍 ${escapeHtml(spot.lieu || 'Spot sans nom')}</strong><br>
+        <span style="font-size:12px;">🎣 ${spot.count} prise(s)</span><br>
+        <span style="font-size:12px;">🐟 ${spot.especes.size} espèce(s) différentes</span><br>
+        <span style="font-size:11px; color:#8a9aa5;">${Array.from(spot.especes).slice(0,3).join(', ')}${spot.especes.size > 3 ? '...' : ''}</span>
+      </div>
+    `;
+    const marker = L.marker([spot.lat, spot.lng]).addTo(map);
+    marker.bindPopup(popupContent);
+    markers.push(marker);
+  });
+  
+  if (markers.length > 0) {
+    const group = L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.2));
+  }
+  
+  const uniqueSpots = Object.keys(spotCount).length;
+  const totalCatches = spotsWithCoords.length;
+  const totalSpecies = new Set(spotsWithCoords.map(e => e.espece)).size;
+  
+  document.getElementById('spots-stats').innerHTML = `
+    <div class="spot-stat">
+      <div class="number">${uniqueSpots}</div>
+      <div class="label">Spots différents</div>
+    </div>
+    <div class="spot-stat">
+      <div class="number">${totalCatches}</div>
+      <div class="label">Prises géolocalisées</div>
+    </div>
+    <div class="spot-stat">
+      <div class="number">${totalSpecies}</div>
+      <div class="label">Espèces sur la carte</div>
+    </div>
+  `;
+}
+
+function getCurrentLocation() {
+  if (!navigator.geolocation) {
+    showToast('⚠️ Géolocalisation non supportée par votre navigateur');
+    return;
+  }
+  
+  showToast('📍 Recherche de votre position...');
+  
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      
+      document.getElementById('f-lat').value = lat;
+      document.getElementById('f-lng').value = lng;
+      
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
+        .then(response => response.json())
+        .then(data => {
+          let lieuName = '';
+          if (data.address) {
+            const parts = [];
+            if (data.address.waterway) parts.push(data.address.waterway);
+            if (data.address.river) parts.push(data.address.river);
+            if (data.address.lake) parts.push(data.address.lake);
+            if (data.address.city) parts.push(data.address.city);
+            if (data.address.town) parts.push(data.address.town);
+            if (data.address.village) parts.push(data.address.village);
+            if (parts.length > 0) lieuName = parts.join(', ');
+            else if (data.display_name) lieuName = data.display_name.split(',')[0];
+          }
+          if (lieuName) {
+            document.getElementById('f-lieu').value = lieuName;
+          }
+          showToast('📍 Position enregistrée !');
+        })
+        .catch(() => {
+          showToast('📍 Position enregistrée (nom non trouvé)');
+        });
+    },
+    (error) => {
+      let message = 'Impossible d\'obtenir la position';
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          message = '🔒 Permission de géolocalisation refusée';
+          break;
+        case error.POSITION_UNAVAILABLE:
+          message = '📡 Position non disponible';
+          break;
+        case error.TIMEOUT:
+          message = '⏱️ Délai d\'attente dépassé';
+          break;
+      }
+      showToast(message);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+  );
+}
+
+function toggleCapot() {
+  isCapotMode = !isCapotMode;
+  const btn = document.getElementById('btn-capot');
+  if (isCapotMode) {
+    btn.classList.add('active');
+    // Désactiver les champs poisson
+    const especeSelect = document.getElementById('f-espece');
+    especeSelect.disabled = true;
+    especeSelect.value = '';
+    document.getElementById('f-taille').disabled = true;
+    document.getElementById('f-poids').disabled = true;
+    document.getElementById('btn-trophy').disabled = true;
+    document.getElementById('btn-relache').disabled = true;
+    document.getElementById('f-technique').disabled = true;
+    // Reset values
+    document.getElementById('f-taille').value = '';
+    document.getElementById('f-poids').value = '';
+    document.getElementById('f-espece').value = '';
+    // Reset trophy/relache
+    if (isTrophy) toggleTrophy(document.getElementById('btn-trophy'));
+    if (isRelache) toggleRelache(document.getElementById('btn-relache'));
+  } else {
+    btn.classList.remove('active');
+    document.getElementById('f-espece').disabled = false;
+    document.getElementById('f-taille').disabled = false;
+    document.getElementById('f-poids').disabled = false;
+    document.getElementById('btn-trophy').disabled = false;
+    document.getElementById('btn-relache').disabled = false;
+    document.getElementById('f-technique').disabled = false;
+  }
+}
+
+function toggleCapotMode() {
+  // Called when species changes - if capot mode is active and user tries to select a species, warn
+  if (isCapotMode) {
+    const espece = document.getElementById('f-espece').value;
+    if (espece) {
+      showToast('⚠️ Désactivez d\'abord le mode Capot pour enregistrer une prise');
+      document.getElementById('f-espece').value = '';
+    }
+  }
+}
+
+function toggleMenu() {
+  const overlay = document.getElementById('menuOverlay');
+  const popup = document.getElementById('menuPopup');
+  
+  if (overlay.classList.contains('active')) {
+    overlay.classList.remove('active');
+    popup.classList.remove('active');
+  } else {
+    overlay.classList.add('active');
+    popup.classList.add('active');
+  }
+}
+
+function switchViewMobile(name) {
+  toggleMenu();
+  switchView(name, null);
+}
+
+function exportDataMobile() {
+  toggleMenu();
+  exportData();
+}
+
+function importDataMobile() {
+  toggleMenu();
+  document.getElementById('import-file').click();
+}
+
+function switchView(name, btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const targetView = document.getElementById('view-'+name);
+  if(targetView) targetView.classList.add('active');
+  
+  document.querySelectorAll('.sidebar .nav-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.sidebar .nav-item').forEach(b=>{
+    if(b.getAttribute('data-view') === name) b.classList.add('active');
+  });
+  
+  const [sub,main] = topbarTitles[name];
+  const topbarTitle = document.getElementById('topbar-title');
+  if(topbarTitle) topbarTitle.innerHTML = `<small>${sub}</small>${main}`;
+  
+  if(name === 'map' && map) {
+    setTimeout(() => {
+      map.invalidateSize();
+      updateMapMarkers();
+    }, 100);
+  }
+  
+  if(name === 'stats') updateStats();
+}
+
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  renderJournal();
+}
+
+function setStar(n){
+  currentStars=n;
+  document.querySelectorAll('.star-btn').forEach((b,i)=>b.classList.toggle('active',i<n));
+}
+
+function toggleMeteo(btn,val){
+  btn.classList.toggle('selected');
+  if(selectedMeteo.includes(val)){
+    selectedMeteo = selectedMeteo.filter(v=>v!==val);
+  } else {
+    selectedMeteo.push(val);
+  }
+}
+
+function toggleTrophy(btn){
+  if (isCapotMode) return;
+  isTrophy = !isTrophy;
+  btn.classList.toggle('selected', isTrophy);
+}
+
+function toggleRelache(btn){
+  if (isCapotMode) return;
+  isRelache = !isRelache;
+  btn.classList.toggle('selected', isRelache);
+}
+
+function previewPhoto(e){
+  const file=e.target.files[0]; 
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    photoData=ev.target.result;
+    const preview = document.getElementById('photo-preview');
+    const uploadIcon = document.querySelector('.photo-upload-icon');
+    const uploadText = document.querySelector('.photo-upload-text');
+    if(preview){
+      preview.style.display='block';
+      preview.src=photoData;
+    }
+    if(uploadIcon) uploadIcon.style.display='none';
+    if(uploadText) uploadText.textContent = '✅ Photo ajoutée';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveEntry(){
+  const date = document.getElementById('f-date').value;
+  if(!date){showToast('⚠️ Veuillez sélectionner une date');return;}
+  
+  let entry = {
+    id:Date.now(), 
+    date: date,
+    lieu:document.getElementById('f-lieu').value,
+    lat:document.getElementById('f-lat').value||null,
+    lng:document.getElementById('f-lng').value||null,
+    meteo:[...selectedMeteo],
+    tempAir:document.getElementById('f-temp-air').value||null,
+    tempEau:document.getElementById('f-temp-eau').value||null,
+    lune:document.getElementById('f-lune').value,
+    stars:currentStars, 
+    notes:document.getElementById('f-notes').value, 
+    photo:photoData,
+    capot: isCapotMode
+  };
+  
+  if (isCapotMode) {
+    entry.espece = 'Capot (aucune prise)';
+    entry.taille = null;
+    entry.poids = null;
+    entry.technique = null;
+    entry.trophy = false;
+    entry.relache = false;
+  } else {
+    const espece=document.getElementById('f-espece').value;
+    if(!espece){showToast('⚠️ Sélectionnez une espèce ou activez le mode Capot');return;}
+    entry.espece = espece;
+    entry.taille = document.getElementById('f-taille').value||null;
+    entry.poids = document.getElementById('f-poids').value ? parseFloat(document.getElementById('f-poids').value) : null;
+    entry.technique = document.getElementById('f-technique').value;
+    entry.trophy = isTrophy;
+    entry.relache = isRelache;
+  }
+  
+  entries.unshift(entry);
+  localStorage.setItem('peche-entries',JSON.stringify(entries));
+  resetForm(); 
+  updateAllStats();
+  if(map) updateMapMarkers();
+  showToast(isCapotMode ? '🎣 Sortie capot enregistrée !' : '🎣 Sortie enregistrée !');
+  switchView('journal',null); 
+  renderJournal();
+}
+
+function resetForm(){
+  ['f-espece','f-taille','f-poids','f-lieu','f-technique','f-temp-air','f-temp-eau','f-lune','f-notes','f-lat','f-lng']
+    .forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.value='';
+      if(el && id === 'f-espece') el.disabled = false;
+      if(el && (id === 'f-taille' || id === 'f-poids')) el.disabled = false;
+    });
+  document.querySelectorAll('.meteo-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.star-btn').forEach(b=>b.classList.remove('active'));
+  const trophyBtn = document.getElementById('btn-trophy');
+  const relacheBtn = document.getElementById('btn-relache');
+  if(trophyBtn) { trophyBtn.classList.remove('selected'); trophyBtn.disabled = false; }
+  if(relacheBtn) { relacheBtn.classList.remove('selected'); relacheBtn.disabled = false; }
+  const capotBtn = document.getElementById('btn-capot');
+  if(capotBtn) { capotBtn.classList.remove('active'); }
+  document.getElementById('f-technique').disabled = false;
+  
+  const preview = document.getElementById('photo-preview');
+  const uploadIcon = document.querySelector('.photo-upload-icon');
+  const uploadText = document.querySelector('.photo-upload-text');
+  if(preview) {
+    preview.style.display='none';
+    preview.src='';
+  }
+  if(uploadIcon) uploadIcon.style.display='block';
+  if(uploadText) uploadText.textContent = 'Ajouter une photo';
+  
+  selectedMeteo=[];
+  currentStars=0;
+  isTrophy=false;
+  isRelache=false;
+  isCapotMode=false;
+  photoData=null;
+  
+  const now=new Date(); 
+  now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+  const dateInput = document.getElementById('f-date');
+  if(dateInput) dateInput.value = now.toISOString().slice(0,16);
+}
+
+function deleteEntry(id){
+  if(!confirm('Supprimer cette entrée ?')) return;
+  entries=entries.filter(e=>e.id!==id);
+  localStorage.setItem('peche-entries',JSON.stringify(entries));
+  renderJournal(); 
+  updateAllStats();
+  if(map) updateMapMarkers();
+  showToast('🗑 Entrée supprimée');
+}
+
+function renderJournal(){
+  const search=document.getElementById('search-input')?.value.toLowerCase() || '';
+  let filtered=entries.filter(e=>{
+    if(currentFilter==='trophy') return e.trophy;
+    if(currentFilter==='capot') return e.capot === true;
+    const mF = currentFilter==='tous' || (e.espece && e.espece.includes(currentFilter));
+    const mS = !search || (e.espece && e.espece.toLowerCase().includes(search)) || (e.lieu && e.lieu.toLowerCase().includes(search));
+    return mF && mS;
+  });
+
+  const list=document.getElementById('journal-list');
+  if(!list) return;
+  
+  if(!filtered.length){
+    list.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><span class="icon">🎣</span><p>Aucune sortie enregistrée.<br>Ajoutez votre première prise !</p></div>`;
+    return;
+  }
+
+  const isMobile=window.innerWidth<768;
+
+  list.innerHTML=filtered.map((e,idx)=>{
+    const date=e.date?new Date(e.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'';
+    const heure=e.date?new Date(e.date).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'';
+    const stars=e.stars?'⭐'.repeat(e.stars):'';
+    const tags=[]; 
+    if(e.technique) tags.push(e.technique); 
+    if(e.relache) tags.push("↩️ Remis à l'eau");
+    if(e.lat && e.lng) tags.push("📍 Géolocalisé");
+    if(e.capot) tags.push("🎣 Capot (aucune prise)");
+    
+    const isCapot = e.capot === true;
+    const poidsFormatted = e.poids ? formatPoids(e.poids) : '';
+    
+    return `
+      <div class="card-wrapper" style="animation-delay:${idx*0.04}s">
+        ${isMobile?`<div class="card-delete-bg" onclick="deleteEntry(${e.id})">🗑<span>Supprimer</span></div>`:''}
+        <div class="entry-card ${e.trophy?'trophy':''} ${isCapot?'capot':''}" data-id="${e.id}">
+          <button class="btn-delete-desktop" onclick="deleteEntry(${e.id})">🗑 Supprimer</button>
+          <div class="entry-card-header">
+            <div>
+              <span class="entry-species">${escapeHtml(e.espece)}</span>
+              ${e.trophy?'<span class="photo-badge">🏆 Trophée</span>':''}
+              ${isCapot?'<span class="photo-badge" style="background:var(--gris);color:white;">🎣 Capot</span>':''}
+            </div>
+            <div class="entry-date">${date}<br>${heure}</div>
+          </div>
+          <div class="entry-meta">
+            ${e.taille?`<div class="entry-meta-item"><span>📏</span>${e.taille} cm</div>`:''}
+            ${poidsFormatted?`<div class="entry-meta-item"><span>⚖️</span>${poidsFormatted}</div>`:''}
+            ${e.lieu?`<div class="entry-meta-item"><span>📍</span>${escapeHtml(e.lieu)}</div>`:''}
+            ${e.meteo&&e.meteo.length?`<div class="entry-meta-item">${e.meteo.join(' ')}</div>`:''}
+          </div>
+          ${stars?`<div class="entry-stars">${stars}</div>`:''}
+          ${tags.length?`<div class="entry-tags">${tags.map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>`:''}
+          ${e.notes?`<div class="entry-notes">"${escapeHtml(e.notes.slice(0,100))}${e.notes.length>100?'…':''}"</div>`:''}
+          ${e.photo?`<div style="margin-top:10px"><img src="${e.photo}" style="width:100%;height:130px;object-fit:cover;border-radius:10px" alt="Photo de prise"></div>`:''}
+        </div>
+      </div>`;
+  }).join('');
+
+  if(isMobile){
+    document.querySelectorAll('.card-wrapper').forEach(wrapper=>{
+      const card = wrapper.querySelector('.entry-card');
+      if(!card) return;
+      let startX = 0, currentX = 0, isDragging = false;
+      
+      card.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+        card.style.transition = 'none';
+      }, {passive: true});
+      
+      card.addEventListener('touchmove', (e) => {
+        if(!isDragging) return;
+        currentX = e.touches[0].clientX - startX;
+        if(currentX < 0) {
+          const translate = Math.max(-90, currentX);
+          card.style.transform = `translateX(${translate}px)`;
+        }
+      }, {passive: true});
+      
+      card.addEventListener('touchend', () => {
+        isDragging = false;
+        card.style.transition = 'transform 0.3s cubic-bezier(.2,.8,.3,1)';
+        if(currentX < -50) {
+          card.style.transform = 'translateX(-90px)';
+        } else {
+          card.style.transform = '';
+        }
+        currentX = 0;
+      });
+    });
+  }
+}
+
+function escapeHtml(str) {
+  if(!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if(m === '&') return '&amp;';
+    if(m === '<') return '&lt;';
+    if(m === '>') return '&gt;';
+    return m;
+  });
+}
+
+function formatPoids(poids){ 
+  if(!poids && poids !== 0) return '';
+  // poids est maintenant en kg (décimal)
+  if (poids >= 1) {
+    return poids.toFixed(2).replace(/\.?0+$/, '') + ' kg';
+  } else {
+    // Moins de 1 kg, afficher en grammes
+    const grammes = Math.round(poids * 1000);
+    return grammes + ' g';
+  }
+}
+
+function updateAllStats(){
+  const total=entries.length;
+  const records=entries.filter(e=>e.poids && !e.capot);
+  const rec=records.length ? formatPoids(Math.max(...records.map(e=>parseFloat(e.poids)))):'—';
+  const species=new Set(entries.filter(e=>!e.capot).map(e=>e.espece)).size;
+  
+  const mTotal = document.getElementById('m-total');
+  const mPoissons = document.getElementById('m-poissons');
+  const mRecord = document.getElementById('m-record');
+  const sTotal = document.getElementById('s-total');
+  const sRecord = document.getElementById('s-record');
+  
+  if(mTotal) mTotal.textContent = total;
+  if(mPoissons) mPoissons.textContent = species;
+  if(mRecord) mRecord.textContent = rec;
+  if(sTotal) sTotal.textContent = total;
+  if(sRecord) sRecord.textContent = rec;
+}
+
+function updateStats(){
+  const el=document.getElementById('stats-content');
+  if(!el) return;
+  
+  const nonCapotEntries = entries.filter(e => !e.capot);
+  
+  if(!entries.length){
+    el.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><span class="icon">📊</span><p>Pas encore de données.</p></div>`;
+    return;
+  }
+  const sp={};
+  nonCapotEntries.forEach(e=>{sp[e.espece]=(sp[e.espece]||0)+1;});
+  const sorted=Object.entries(sp).sort((a,b)=>b[1]-a[1]);
+  const maxC=sorted[0]?sorted[0][1]:1;
+  const wP=[...nonCapotEntries].filter(e=>e.poids).sort((a,b)=>b.poids-a.poids);
+  const wT=[...nonCapotEntries].filter(e=>e.taille).sort((a,b)=>b.taille-a.taille);
+  const lx={};
+  entries.forEach(e=>{if(e.lieu)lx[e.lieu]=(lx[e.lieu]||0)+1;});
+  const tL=Object.entries(lx).sort((a,b)=>b[1]-a[1])[0];
+  const spotsWithCoords = entries.filter(e=>e.lat && e.lng).length;
+  const capotCount = entries.filter(e=>e.capot).length;
+
+  el.innerHTML=`
+    <div class="stat-card">
+      <div class="stat-card-title">🐟 Espèces capturées</div>
+      ${sorted.length ? sorted.map(([s,c])=>`<div class="species-bar"><span class="species-name">${escapeHtml(s)}</span><div class="bar-track"><div class="bar-fill" style="width:${c/maxC*100}%"></div></div><span class="bar-count">${c}</span></div>`).join('') : '<div class="species-bar">Aucune prise enregistrée</div>'}
+    </div>
+    ${wP.length||wT.length?`
+    <div class="stat-card">
+      <div class="stat-card-title">🏆 Records</div>
+      ${wP[0]?`<div class="record-item"><span class="record-icon">⚖️</span><div class="record-info"><div class="species">${escapeHtml(wP[0].espece)}</div><div class="detail">${escapeHtml(wP[0].lieu||'Lieu non précisé')}</div></div><span class="record-value">${formatPoids(wP[0].poids)}</span></div>`:''}
+      ${wT[0]?`<div class="record-item"><span class="record-icon">📏</span><div class="record-info"><div class="species">${escapeHtml(wT[0].espece)}</div><div class="detail">${escapeHtml(wT[0].lieu||'Lieu non précisé')}</div></div><span class="record-value">${wT[0].taille} cm</span></div>`:''}
+    </div>`:''}
+    <div class="stat-card">
+      <div class="stat-card-title">📋 Résumé</div>
+      <div class="record-item"><span class="record-icon">🎣</span><div class="record-info"><div class="species">Total sorties</div></div><span class="record-value">${entries.length}</span></div>
+      <div class="record-item"><span class="record-icon">🎣</span><div class="record-info"><div class="species">Sorties capot</div></div><span class="record-value">${capotCount}</span></div>
+      <div class="record-item"><span class="record-icon">🗺️</span><div class="record-info"><div class="species">Spots géolocalisés</div></div><span class="record-value">${spotsWithCoords}</span></div>
+      <div class="record-item"><span class="record-icon">🏆</span><div class="record-info"><div class="species">Trophées</div></div><span class="record-value">${entries.filter(e=>e.trophy).length}</span></div>
+      ${tL?`<div class="record-item"><span class="record-icon">📍</span><div class="record-info"><div class="species">Spot favori</div><div class="detail">${tL[1]} visite${tL[1]>1?'s':''}</div></div><span class="record-value" style="font-size:13px;max-width:110px;text-align:right">${escapeHtml(tL[0])}</span></div>`:''}
+      <div class="record-item"><span class="record-icon">↩️</span><div class="record-info"><div class="species">Remises à l'eau</div></div><span class="record-value">${entries.filter(e=>e.relache).length}</span></div>
+    </div>`;
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  if(!t) return;
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function exportData(){
+  if(!entries.length){ showToast('⚠️ Aucune donnée à exporter'); return; }
+  const data = { version:1, exportDate: new Date().toISOString(), entries };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  const date = new Date().toISOString().slice(0,10);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `carnet-peche-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast(`📤 ${entries.length} sortie(s) exportée(s) !`);
+}
+
+function importData(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      const imported = data.entries || data;
+      if(!Array.isArray(imported)) throw new Error('Format invalide');
+      const existingIds = new Set(entries.map(e=>e.id));
+      const nouveaux = imported.filter(e=>e.id && !existingIds.has(e.id));
+      entries = [...nouveaux, ...entries];
+      localStorage.setItem('peche-entries', JSON.stringify(entries));
+      renderJournal(); 
+      updateAllStats();
+      if(map) updateMapMarkers();
+      if(document.getElementById('view-stats')?.classList.contains('active')) updateStats();
+      showToast(`📥 ${nouveaux.length} nouvelle(s) sortie(s) importée(s) !`);
+    } catch(err) {
+      showToast('❌ Fichier invalide');
+    }
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+let rt;
+window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{
+  renderJournal();
+  if(map) map.invalidateSize();
+  if(document.getElementById('view-stats')?.classList.contains('active')) updateStats();
+},200); });
+
+init();
+</script>
+</body>
+</html>

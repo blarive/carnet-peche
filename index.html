@@ -265,50 +265,135 @@
   ══════════════════════════════════════════ */
   @media(max-width:767px){
     body{display:block;background:var(--eau-profonde);}
-    body::before{content:'';position:fixed;top:0;left:0;right:0;height:210px;background:linear-gradient(180deg,var(--eau-claire) 0%,var(--eau-profonde) 100%);z-index:0;}
-    body::after{content:'';position:fixed;top:155px;left:-10%;width:120%;height:70px;background:rgba(232,96,154,0.2);border-radius:50%;filter:blur(20px);animation:vague 6s ease-in-out infinite;z-index:0;}
+    body::before{content:'';position:fixed;top:0;left:0;right:0;height:230px;background:linear-gradient(180deg,var(--eau-claire) 0%,var(--eau-profonde) 100%);z-index:0;}
+    body::after{content:'';position:fixed;top:175px;left:-10%;width:120%;height:70px;background:rgba(232,96,154,0.2);border-radius:50%;filter:blur(20px);animation:vague 6s ease-in-out infinite;z-index:0;}
 
     .sidebar{display:none;}
     .topbar{display:none;}
 
+    /* Header mobile — bien visible */
     .mobile-header{
-      display:block;position:fixed;top:0;left:0;right:0;z-index:50;
-      padding:38px 20px 8px;text-align:center;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      position:fixed;top:0;left:0;right:0;z-index:50;
+      padding:44px 20px 10px;
     }
-    .mobile-header .icon{font-size:32px;display:block;margin-bottom:4px;filter:drop-shadow(0 2px 8px rgba(240,192,64,0.5));}
-    .mobile-header h1{font-family:'Playfair Display',serif;font-size:20px;color:var(--sable);}
+    .mobile-header .icon{font-size:28px;filter:drop-shadow(0 2px 8px rgba(232,96,154,0.6));}
+    .mobile-header h1{font-family:'Playfair Display',serif;font-size:20px;color:var(--sable);white-space:nowrap;}
 
+    /* Stats pills sous le titre */
     .mobile-stats-bar{
       display:flex;gap:8px;
-      position:fixed;top:104px;left:0;right:0;padding:0 14px;z-index:50;
+      position:fixed;top:96px;left:0;right:0;padding:0 14px;z-index:50;
     }
-    .mob-stat{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:8px 6px;text-align:center;backdrop-filter:blur(8px);}
-    .mob-stat .num{font-family:'Playfair Display',serif;font-size:18px;color:var(--rose);display:block;}
+    .mob-stat{flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:7px 6px;text-align:center;backdrop-filter:blur(8px);}
+    .mob-stat .num{font-family:'Playfair Display',serif;font-size:17px;color:var(--rose);display:block;line-height:1;}
     .mob-stat .label{font-size:9px;color:var(--gris);text-transform:uppercase;letter-spacing:0.7px;}
 
+    /* App body commence sous le header */
     .app-body{
       margin-left:0;background:var(--blanc);
-      border-radius:24px 24px 0 0;margin-top:168px;min-height:calc(100vh - 168px);
+      border-radius:24px 24px 0 0;margin-top:148px;min-height:calc(100vh - 148px);
     }
-    .page-content{padding:16px 14px 88px;}
+    .page-content{padding:18px 14px 100px;}
     .cards-grid{grid-template-columns:1fr;}
     .stats-grid{grid-template-columns:1fr;}
     .form-layout{grid-template-columns:1fr;}
     .form-card{padding:16px;}
+    /* Assure que le titre de carte form est visible */
+    .form-card-title{font-size:13px;margin-bottom:14px;}
 
+    /* ── BOTTOM FAB MENU ── */
     .bottom-nav{
-      display:flex;position:fixed;bottom:0;left:0;right:0;
-      background:white;border-top:1px solid #eee;
-      padding:6px 0 env(safe-area-inset-bottom,6px);z-index:100;
-      box-shadow:0 -4px 20px rgba(0,0,0,0.08);
+      display:flex;align-items:center;justify-content:center;
+      position:fixed;bottom:0;left:0;right:0;
+      background:transparent;border:none;
+      padding:0 0 env(safe-area-inset-bottom,12px) 0;
+      z-index:100;pointer-events:none;
     }
-    .mob-nav-btn{flex:1;background:none;border:none;padding:6px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;}
-    .mob-nav-btn .nav-icon{font-size:22px;}
-    .mob-nav-btn .nav-label{font-size:10px;font-weight:500;color:var(--gris);font-family:'DM Sans',sans-serif;}
-    .mob-nav-btn.active .nav-label{color:var(--rose);font-weight:700;}
-    .toast{bottom:80px;}
+    .fab-menu-btn{
+      pointer-events:all;
+      width:62px;height:62px;
+      background:linear-gradient(135deg,var(--eau-claire),var(--rose));
+      border-radius:50%;border:none;
+      color:white;font-size:26px;
+      cursor:pointer;
+      box-shadow:0 6px 24px rgba(46,109,180,0.45);
+      display:flex;align-items:center;justify-content:center;
+      transition:transform 0.2s,box-shadow 0.2s;
+      margin-bottom:14px;
+    }
+    .fab-menu-btn:active{transform:scale(0.93);}
+    .fab-menu-btn.open{transform:rotate(45deg);}
+
+    .toast{bottom:100px;}
     .btn-delete-desktop{display:none;}
   }
+
+  /* ── POPUP MENU (mobile) ── */
+  .menu-overlay{
+    display:none;position:fixed;inset:0;
+    background:rgba(15,33,71,0.55);backdrop-filter:blur(4px);
+    z-index:200;align-items:flex-end;justify-content:center;
+    padding-bottom:90px;
+  }
+  .menu-overlay.open{display:flex;}
+  .menu-popup{
+    background:white;border-radius:24px;padding:8px 12px 12px;
+    width:calc(100% - 32px);max-width:360px;
+    box-shadow:0 16px 48px rgba(15,33,71,0.25);
+    animation:popupUp 0.25s cubic-bezier(.34,1.4,.64,1) both;
+  }
+  @keyframes popupUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+  .menu-popup-title{
+    font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:1px;color:var(--gris);
+    text-align:center;padding:10px 0 8px;
+    border-bottom:1px solid #eee;margin-bottom:8px;
+  }
+  .menu-popup-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .menu-popup-item{
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    padding:14px 10px;border-radius:16px;border:none;background:#f4f7fd;
+    cursor:pointer;transition:background 0.15s,transform 0.1s;
+    font-family:'DM Sans',sans-serif;
+  }
+  .menu-popup-item:active{transform:scale(0.96);}
+  .menu-popup-item.active-view{background:var(--bleu-clair);border:1.5px solid var(--eau-claire);}
+  .menu-popup-item .mi-icon{font-size:26px;}
+  .menu-popup-item .mi-label{font-size:12px;font-weight:600;color:var(--texte);}
+  .menu-popup-item .mi-sub{font-size:10px;color:var(--gris);}
+  .menu-popup-divider{height:1px;background:#eee;margin:8px 0;}
+  .menu-popup-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .menu-popup-small{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 14px;border-radius:12px;border:none;
+    background:#f8f9ff;cursor:pointer;
+    font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--texte);
+    transition:background 0.15s;
+  }
+  .menu-popup-small:active{background:var(--bleu-clair);}
+
+  /* ── GÉOLOCALISATION ── */
+  .geo-btn{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 14px;border:1.5px solid #c8d8f0;border-radius:10px;
+    background:var(--bleu-clair);color:var(--eau-claire);
+    font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+    cursor:pointer;transition:all 0.15s;width:100%;margin-top:6px;
+  }
+  .geo-btn:hover{background:#d8eaff;}
+
+  /* Spots favoris */
+  .spots-list{margin-top:6px;display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;}
+  .spot-chip{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 12px;background:white;border:1.5px solid #dde8f5;
+    border-radius:10px;cursor:pointer;transition:border-color 0.15s;
+    font-size:13px;color:var(--texte);
+  }
+  .spot-chip:hover{border-color:var(--eau-claire);}
+  .spot-chip .spot-del{margin-left:auto;color:var(--gris);font-size:16px;background:none;border:none;cursor:pointer;padding:0 2px;}
+
 </style>
 </head>
 <body>
@@ -321,7 +406,7 @@
 <div class="mobile-stats-bar">
   <div class="mob-stat"><span class="num" id="m-total">0</span><span class="label">Sorties</span></div>
   <div class="mob-stat"><span class="num" id="m-poissons">0</span><span class="label">Espèces</span></div>
-  <div class="mob-stat"><span class="num" id="m-record">—</span><span class="label">Record</span></div>
+  <div class="mob-stat"><span class="num" id="m-record">—</span><span class="label">Record kg</span></div>
 </div>
 
 <!-- SIDEBAR -->
@@ -339,6 +424,7 @@
     <button class="nav-item active" onclick="switchView('journal',this)"><span class="nav-icon">📖</span> Journal</button>
     <button class="nav-item" onclick="switchView('ajouter',this)"><span class="nav-icon">➕</span> Ajouter une prise</button>
     <button class="nav-item" onclick="switchView('stats',this)"><span class="nav-icon">📊</span> Statistiques</button>
+    <button class="nav-item" onclick="switchView('spots',this)"><span class="nav-icon">📍</span> Mes Spots</button>
     <div style="height:1px;background:rgba(255,255,255,0.1);margin:10px 4px"></div>
     <button class="nav-item" onclick="exportData()"><span class="nav-icon">📤</span> Exporter</button>
     <button class="nav-item" onclick="document.getElementById('import-file').click()"><span class="nav-icon">📥</span> Importer</button>
@@ -430,8 +516,15 @@
           </div>
           </div><!-- /prise-fields -->
           <div class="form-group">
-            <label class="form-label">📍 Lieu</label>
+            <label class="form-label">📍 Lieu / Spot</label>
             <input type="text" class="form-input" id="f-lieu" placeholder="Étang, rivière, lac…">
+            <button class="geo-btn" onclick="geoLocate()" id="geo-btn" type="button">
+              📡 Utiliser ma position GPS
+            </button>
+            <div id="spots-favoris-box" style="display:none;margin-top:10px">
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gris);margin-bottom:6px">⭐ Spots enregistrés</div>
+              <div class="spots-list" id="spots-list"></div>
+            </div>
           </div>
         </div>
 
@@ -508,27 +601,52 @@
       <div class="stats-grid" id="stats-content"></div>
     </div>
 
+    <!-- SPOTS -->
+    <div class="view" id="view-spots">
+      <div id="spots-page-content"></div>
+    </div>
+
   </div>
 </div>
 
-<!-- BOTTOM NAV (mobile) -->
+<!-- FAB MENU (mobile) -->
 <nav class="bottom-nav">
-  <button class="mob-nav-btn active" onclick="switchView('journal',this)" id="mnav-journal">
-    <span class="nav-icon">📖</span><span class="nav-label">Journal</span>
-  </button>
-  <button class="mob-nav-btn" onclick="switchView('ajouter',this)" id="mnav-ajouter">
-    <span class="nav-icon">➕</span><span class="nav-label">Ajouter</span>
-  </button>
-  <button class="mob-nav-btn" onclick="switchView('stats',this)" id="mnav-stats">
-    <span class="nav-icon">📊</span><span class="nav-label">Stats</span>
-  </button>
-  <button class="mob-nav-btn" onclick="exportData()">
-    <span class="nav-icon">📤</span><span class="nav-label">Exporter</span>
-  </button>
-  <button class="mob-nav-btn" onclick="document.getElementById('import-file').click()">
-    <span class="nav-icon">📥</span><span class="nav-label">Importer</span>
-  </button>
+  <button class="fab-menu-btn" id="fab-btn" onclick="toggleMenu()">☰</button>
 </nav>
+
+<!-- POPUP MENU -->
+<div class="menu-overlay" id="menu-overlay" onclick="closeMenuOnOverlay(event)">
+  <div class="menu-popup">
+    <div class="menu-popup-title">Navigation</div>
+    <div class="menu-popup-grid">
+      <button class="menu-popup-item" id="mpop-journal" onclick="popupNav('journal')">
+        <span class="mi-icon">📖</span>
+        <span class="mi-label">Journal</span>
+        <span class="mi-sub">Mes sorties</span>
+      </button>
+      <button class="menu-popup-item" id="mpop-ajouter" onclick="popupNav('ajouter')">
+        <span class="mi-icon">➕</span>
+        <span class="mi-label">Ajouter</span>
+        <span class="mi-sub">Nouvelle prise</span>
+      </button>
+      <button class="menu-popup-item" id="mpop-stats" onclick="popupNav('stats')">
+        <span class="mi-icon">📊</span>
+        <span class="mi-label">Statistiques</span>
+        <span class="mi-sub">Mes records</span>
+      </button>
+      <button class="menu-popup-item" id="mpop-spots" onclick="popupNav('spots')">
+        <span class="mi-icon">📍</span>
+        <span class="mi-label">Mes Spots</span>
+        <span class="mi-sub">Spots favoris</span>
+      </button>
+    </div>
+    <div class="menu-popup-divider"></div>
+    <div class="menu-popup-row">
+      <button class="menu-popup-small" onclick="exportData();closeMenu()">📤 Exporter</button>
+      <button class="menu-popup-small" onclick="document.getElementById('import-file').click();closeMenu()">📥 Importer</button>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -539,25 +657,30 @@ let currentFilter='tous', currentStars=0, selectedMeteo=[], isTrophy=false, isRe
 const topbarTitles = {
   journal:['Mes sorties','Journal de pêche'],
   ajouter:['Nouvelle entrée','Ajouter une prise'],
-  stats:["Vue d'ensemble",'Statistiques']
+  stats:["Vue d'ensemble",'Statistiques'],
+  spots:['Mes lieux','Spots favoris']
 };
 
 function init(){
   const now=new Date(); now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
   document.getElementById('f-date').value=now.toISOString().slice(0,16);
   renderJournal(); updateStats(); updateAllStats();
+  renderSpotsForm(); renderSpotsPage();
 }
 
 function switchView(name, btn){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.mob-nav-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(b=>{ if(b.textContent.trim().toLowerCase().includes(name==='ajouter'?'ajouter':name==='stats'?'stat':'journal')) b.classList.add('active'); });
-  const mn=document.getElementById('mnav-'+name); if(mn) mn.classList.add('active');
-  const [sub,main]=topbarTitles[name];
-  document.getElementById('topbar-title').innerHTML=`<small>${sub}</small>${main}`;
+  document.querySelectorAll('.nav-item').forEach(b=>{
+    const t=b.textContent.trim().toLowerCase();
+    if((name==='journal'&&t.includes('journal'))||(name==='ajouter'&&t.includes('ajouter'))||(name==='stats'&&t.includes('stat'))||(name==='spots'&&t.includes('spot')))
+      b.classList.add('active');
+  });
+  const titles=topbarTitles[name]||['',''];
+  document.getElementById('topbar-title').innerHTML=`<small>${titles[0]}</small>${titles[1]}`;
   if(name==='stats') updateStats();
+  if(name==='spots') renderSpotsPage();
 }
 
 function setFilter(f,btn){
@@ -803,6 +926,142 @@ function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ── POPUP MENU ────────────────────────────────────────────────────────────────
+let menuOpen=false;
+function toggleMenu(){
+  menuOpen=!menuOpen;
+  document.getElementById('menu-overlay').classList.toggle('open',menuOpen);
+  document.getElementById('fab-btn').classList.toggle('open',menuOpen);
+  document.getElementById('fab-btn').textContent=menuOpen?'✕':'☰';
+}
+function closeMenu(){
+  menuOpen=false;
+  document.getElementById('menu-overlay').classList.remove('open');
+  document.getElementById('fab-btn').classList.remove('open');
+  document.getElementById('fab-btn').textContent='☰';
+}
+function closeMenuOnOverlay(e){
+  if(e.target===document.getElementById('menu-overlay')) closeMenu();
+}
+function popupNav(name){
+  closeMenu();
+  switchView(name,null);
+  // highlight active in popup
+  document.querySelectorAll('.menu-popup-item').forEach(b=>b.classList.remove('active-view'));
+  const el=document.getElementById('mpop-'+name);
+  if(el) el.classList.add('active-view');
+}
+
+// ── GÉOLOCALISATION ───────────────────────────────────────────────────────────
+let spots = JSON.parse(localStorage.getItem('peche-spots')||'[]');
+
+function geoLocate(){
+  const btn=document.getElementById('geo-btn');
+  if(!navigator.geolocation){showToast('❌ GPS non disponible');return;}
+  btn.textContent='📡 Localisation en cours…';
+  btn.disabled=true;
+  navigator.geolocation.getCurrentPosition(
+    pos=>{
+      const {latitude:lat,longitude:lng}=pos.coords;
+      // Reverse geocode via nominatim
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+        .then(r=>r.json())
+        .then(data=>{
+          const addr=data.address||{};
+          const nom=addr.leisure||addr.water||addr.natural||addr.village||addr.town||addr.city||addr.hamlet||`${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+          document.getElementById('f-lieu').value=nom;
+          btn.textContent='✅ Position obtenue';
+          btn.disabled=false;
+          // Proposer d'enregistrer le spot
+          if(!spots.find(s=>s.nom===nom)){
+            if(confirm(`📍 Enregistrer "${nom}" comme spot favori ?`)){
+              spots.unshift({id:Date.now(),nom,lat,lng});
+              localStorage.setItem('peche-spots',JSON.stringify(spots));
+              renderSpotsForm();
+              renderSpotsPage();
+              showToast('⭐ Spot enregistré !');
+            }
+          }
+        })
+        .catch(()=>{
+          const nom=`${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+          document.getElementById('f-lieu').value=nom;
+          btn.textContent='📡 Utiliser ma position GPS';
+          btn.disabled=false;
+        });
+    },
+    err=>{
+      btn.textContent='📡 Utiliser ma position GPS';
+      btn.disabled=false;
+      showToast('❌ Impossible d\'obtenir la position');
+    },
+    {timeout:10000,enableHighAccuracy:true}
+  );
+}
+
+function renderSpotsForm(){
+  const box=document.getElementById('spots-favoris-box');
+  const list=document.getElementById('spots-list');
+  if(!spots.length){box.style.display='none';return;}
+  box.style.display='block';
+  list.innerHTML=spots.map(s=>`
+    <div class="spot-chip" onclick="useSpot('${s.nom.replace(/'/g,"\\'")}')">
+      📍 <span style="flex:1">${s.nom}</span>
+      <button class="spot-del" onclick="deleteSpot(${s.id},event)" title="Supprimer">✕</button>
+    </div>`).join('');
+}
+
+function useSpot(nom){
+  document.getElementById('f-lieu').value=nom;
+  showToast(`📍 Spot sélectionné : ${nom}`);
+}
+
+function deleteSpot(id,e){
+  e.stopPropagation();
+  spots=spots.filter(s=>s.id!==id);
+  localStorage.setItem('peche-spots',JSON.stringify(spots));
+  renderSpotsForm();
+  renderSpotsPage();
+}
+
+// ── SPOTS PAGE ────────────────────────────────────────────────────────────────
+function renderSpotsPage(){
+  const el=document.getElementById('spots-page-content');
+  if(!el) return;
+  if(!spots.length){
+    el.innerHTML=`
+      <div class="empty-state">
+        <span class="icon">📍</span>
+        <p>Aucun spot enregistré.<br>Utilisez le GPS lors d'une sortie pour<br>enregistrer vos spots favoris !</p>
+      </div>`;
+    return;
+  }
+  el.innerHTML=`
+    <p style="font-family:'Playfair Display',serif;font-size:20px;color:var(--eau-profonde);margin-bottom:16px">
+      <small style="font-family:'DM Sans',sans-serif;font-size:11px;color:var(--gris);font-weight:400;display:block;text-transform:uppercase;letter-spacing:1px">Mes lieux</small>
+      Spots favoris
+    </p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${spots.map(s=>{
+        const sorties=entries.filter(e=>e.lieu===s.nom).length;
+        const mapsUrl=`https://maps.google.com/?q=${s.lat},${s.lng}`;
+        return `
+        <div style="background:white;border-radius:14px;padding:16px 18px;box-shadow:0 1px 6px rgba(0,0,0,0.07);border-left:4px solid var(--eau-claire);display:flex;align-items:center;gap:12px">
+          <span style="font-size:28px">📍</span>
+          <div style="flex:1">
+            <div style="font-family:'Playfair Display',serif;font-size:15px;font-style:italic;color:var(--eau-profonde)">${s.nom}</div>
+            <div style="font-size:12px;color:var(--gris);margin-top:3px">${sorties} sortie${sorties>1?'s':''} enregistrée${sorties>1?'s':''}</div>
+            <div style="font-size:11px;color:#aab;margin-top:2px">${s.lat.toFixed(5)}, ${s.lng.toFixed(5)}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+            <a href="${mapsUrl}" target="_blank" style="font-size:11px;color:var(--eau-claire);font-weight:600;text-decoration:none;padding:4px 10px;background:var(--bleu-clair);border-radius:8px">🗺 Maps</a>
+            <button onclick="deleteSpot(${s.id},event)" style="font-size:11px;color:var(--rouge);background:#fee;border:none;border-radius:8px;padding:4px 10px;cursor:pointer;font-weight:600">✕ Suppr.</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
 }
 
 // ── EXPORT ───────────────────────────────────────────────────────────────────

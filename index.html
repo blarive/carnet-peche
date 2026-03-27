@@ -202,83 +202,12 @@
   .btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--eau-claire) 0%,var(--rose) 100%);color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(46,109,180,0.25);transition:transform 0.15s;}
   .btn-submit:active{transform:scale(0.98);}
 
-  /* ── PHOTO UPLOAD CORRIGÉ ────────────────────────────────── */
-  .photo-upload {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    border:2px dashed #c8d8f0;
-    border-radius:var(--radius);
-    padding:20px 16px;
-    cursor:pointer;
-    background:#f8faff;
-    transition:all 0.2s;
-    width:100%;
-    box-sizing:border-box;
-  }
-  .photo-upload:hover {
-    border-color:var(--eau-claire);
-    background:#f0f5ff;
-  }
-  .photo-upload input {
-    display:none;
-  }
-  .photo-upload .icon {
-    font-size:32px;
-    display:block;
-    margin-bottom:8px;
-    opacity:0.6;
-  }
-  .photo-upload p {
-    font-size:13px;
-    color:var(--gris);
-    text-align:center;
-    margin:0;
-  }
-  .photo-upload .photo-preview-container {
-    width:100%;
-    margin-top:12px;
-    display:none;
-  }
-  .photo-upload .photo-preview {
-    width:100%;
-    max-height:180px;
-    object-fit:cover;
-    border-radius:10px;
-    display:block;
-  }
-  .photo-upload.has-photo {
-    border-style:solid;
-    border-color:var(--mousse);
-    background:#f0f9f0;
-  }
-  .photo-upload.has-photo .icon,
-  .photo-upload.has-photo p {
-    display:none;
-  }
-  .photo-upload.has-photo .photo-preview-container {
-    display:block;
-  }
-  .photo-remove {
-    margin-top:8px;
-    padding:6px 12px;
-    background:#fee;
-    border:1px solid #fcc;
-    border-radius:20px;
-    font-size:11px;
-    color:var(--rouge);
-    cursor:pointer;
-    font-weight:600;
-    transition:all 0.15s;
-    width:auto;
-    display:inline-block;
-  }
-  .photo-remove:hover {
-    background:var(--rouge);
-    color:white;
-    border-color:var(--rouge);
-  }
+  .photo-upload{border:2px dashed #c8d8f0;border-radius:10px;padding:20px;text-align:center;cursor:pointer;background:#f8faff;transition:border-color 0.2s;}
+  .photo-upload:hover{border-color:var(--eau-claire);}
+  .photo-upload input{display:none;}
+  .photo-upload .icon{font-size:28px;display:block;margin-bottom:6px;}
+  .photo-upload p{font-size:13px;color:var(--gris);}
+  .photo-preview{width:100%;height:160px;object-fit:cover;border-radius:10px;display:none;}
 
   /* capot section */
   .capot-banner{display:none;background:var(--bleu-clair);border:1.5px solid #b8cef0;border-radius:12px;padding:14px 16px;margin-bottom:14px;color:var(--eau);font-size:14px;font-weight:500;text-align:center;}
@@ -337,11 +266,13 @@
   @media(max-width:767px){
     body{display:block;background:var(--blanc);}
     
+    /* Suppression du background décoratif qui prenait trop de place */
     body::before, body::after{display:none;}
 
     .sidebar{display:none;}
     .topbar{display:none;}
 
+    /* Header mobile réduit et compact */
     .mobile-header{
       display:flex;align-items:center;justify-content:center;gap:8px;
       position:sticky;top:0;left:0;right:0;z-index:50;
@@ -351,6 +282,7 @@
     .mobile-header .icon{font-size:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));}
     .mobile-header h1{font-family:'Playfair Display',serif;font-size:18px;color:var(--sable);}
 
+    /* Stats pills réduites et placées sous le header */
     .mobile-stats-bar{
       display:flex;gap:6px;
       position:sticky;top:52px;left:0;right:0;padding:8px 12px;
@@ -361,6 +293,7 @@
     .mob-stat .num{font-family:'Playfair Display',serif;font-size:15px;color:var(--rose);display:block;line-height:1.2;}
     .mob-stat .label{font-size:9px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:0.5px;}
 
+    /* App body - sans marge excessive */
     .app-body{
       margin-left:0;background:var(--blanc);
       min-height:calc(100vh - 100px);
@@ -371,6 +304,7 @@
     .form-layout{grid-template-columns:1fr;}
     .form-card{padding:16px;}
     
+    /* Filtres scrollables et visibles */
     .filter-pills{
       display:flex;
       gap:8px;
@@ -389,6 +323,7 @@
       border:1px solid #e0e6ea;
     }
     
+    /* Form cards - toutes visibles */
     .form-card:first-child{
       margin-top:0;
     }
@@ -397,6 +332,7 @@
       margin-bottom:12px;
     }
     
+    /* Ajustement des champs de formulaire */
     .form-group{
       margin-bottom:12px;
     }
@@ -408,6 +344,7 @@
       gap:8px;
     }
     
+    /* Météo buttons compact */
     .meteo-btns{
       gap:6px;
     }
@@ -416,20 +353,7 @@
       font-size:12px;
     }
     
-    /* Photo upload mobile - complètement visible */
-    .photo-upload {
-      padding:16px;
-    }
-    .photo-upload .icon {
-      font-size:28px;
-    }
-    .photo-upload p {
-      font-size:12px;
-    }
-    .photo-upload .photo-preview {
-      max-height:160px;
-    }
-    
+    /* Bottom FAB */
     .bottom-nav{
       display:flex;
       align-items:center;
@@ -521,6 +445,7 @@
   }
   .geo-btn:hover{background:#d8eaff;}
 
+  /* Spots favoris */
   .spots-list{margin-top:6px;display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;}
   .spot-chip{
     display:flex;align-items:center;gap:8px;
@@ -535,7 +460,7 @@
 </head>
 <body>
 
-<!-- MOBILE HEADER -->
+<!-- MOBILE HEADER (compact) -->
 <div class="mobile-header">
   <span class="icon">🎣</span>
   <h1>Carnet de Pêche</h1>
@@ -720,14 +645,11 @@
           </div>
           <div class="form-group">
             <label class="form-label">📸 Photo</label>
-            <label class="photo-upload" id="photo-upload-label" for="f-photo">
+            <label class="photo-upload" for="f-photo">
               <input type="file" id="f-photo" accept="image/*" onchange="previewPhoto(event)">
+              <img class="photo-preview" id="photo-preview" alt="">
               <span class="icon" id="photo-icon">📷</span>
               <p id="photo-text">Ajouter une photo</p>
-              <div class="photo-preview-container" id="photo-preview-container">
-                <img class="photo-preview" id="photo-preview" alt="Aperçu de la photo">
-                <button type="button" class="photo-remove" onclick="removePhoto(event)">✕ Supprimer la photo</button>
-              </div>
             </label>
           </div>
           <button class="btn-submit" onclick="saveEntry()">✅ Enregistrer la sortie</button>
@@ -865,28 +787,12 @@ function previewPhoto(e){
   const reader=new FileReader();
   reader.onload=ev=>{
     photoData=ev.target.result;
-    const container=document.getElementById('photo-preview-container');
-    const preview=document.getElementById('photo-preview');
-    const label=document.getElementById('photo-upload-label');
-    preview.src=photoData;
-    container.style.display='block';
-    label.classList.add('has-photo');
+    document.getElementById('photo-preview').style.display='block';
+    document.getElementById('photo-preview').src=photoData;
+    document.getElementById('photo-icon').style.display='none';
+    document.getElementById('photo-text').textContent='✅ Photo ajoutée';
   };
   reader.readAsDataURL(file);
-}
-
-function removePhoto(e){
-  e.stopPropagation();
-  photoData=null;
-  const fileInput=document.getElementById('f-photo');
-  fileInput.value='';
-  const container=document.getElementById('photo-preview-container');
-  const preview=document.getElementById('photo-preview');
-  const label=document.getElementById('photo-upload-label');
-  container.style.display='none';
-  preview.src='';
-  label.classList.remove('has-photo');
-  showToast('🗑 Photo supprimée');
 }
 
 function saveEntry(){
@@ -924,23 +830,14 @@ function resetForm(){
   document.getElementById('btn-trophy').classList.remove('selected');
   document.getElementById('btn-relache').classList.remove('selected');
   document.getElementById('btn-capot').classList.remove('selected-rose');
-  
-  // Reset photo
-  const container=document.getElementById('photo-preview-container');
-  const preview=document.getElementById('photo-preview');
-  const label=document.getElementById('photo-upload-label');
-  const fileInput=document.getElementById('f-photo');
-  container.style.display='none';
-  preview.src='';
-  label.classList.remove('has-photo');
-  fileInput.value='';
-  photoData=null;
-  
+  document.getElementById('photo-preview').style.display='none';
+  document.getElementById('photo-icon').style.display='block';
+  document.getElementById('photo-text').textContent='Ajouter une photo';
   const fields=document.getElementById('prise-fields');
   fields.style.opacity='1'; fields.style.pointerEvents='';
   const sg=document.getElementById('statut-group');
   sg.style.opacity='1'; sg.style.pointerEvents='';
-  selectedMeteo=[]; currentStars=0; isTrophy=false; isRelache=false; isCapot=false;
+  selectedMeteo=[]; currentStars=0; isTrophy=false; isRelache=false; isCapot=false; photoData=null;
   const now=new Date(); now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
   document.getElementById('f-date').value=now.toISOString().slice(0,16);
 }

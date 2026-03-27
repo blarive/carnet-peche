@@ -11,6 +11,8 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Carnet de Pêche - Journal de bord</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- Leaflet CSS pour la carte -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
   :root {
     --eau: #1a3a4a;
@@ -102,9 +104,14 @@
     font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s;
   }
   .btn-secondary:hover{background:#eef4f8;}
+  .btn-location {
+    padding:9px 14px;background:linear-gradient(135deg,var(--mousse) 0%,#5a9c6e 100%);
+    color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;
+    font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;
+  }
 
   /* ── PAGE CONTENT ────────────────────────── */
-  .page-content { flex:1;padding:24px 28px 40px;max-width:1100px; }
+  .page-content { flex:1;padding:24px 28px 40px;max-width:1200px; }
   .view{display:none;} .view.active{display:block;}
 
   /* ── JOURNAL ─────────────────────────────── */
@@ -196,6 +203,14 @@
     display:grid;
     grid-template-columns:repeat(3, 1fr);
     gap:12px;
+  }
+  .location-row {
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .location-row .form-input {
+    flex:1;
   }
 
   .stars-input{display:flex;gap:8px;flex-wrap:wrap;}
@@ -290,6 +305,52 @@
   .record-info .detail{font-size:12px;color:var(--gris);margin-top:4px;}
   .record-value{font-family:'Playfair Display',serif;font-size:20px;color:var(--eclair);font-weight:700;}
 
+  /* ── MAP ─────────────────────────────────── */
+  .map-container {
+    background:white;
+    border-radius:var(--radius);
+    padding:20px;
+    box-shadow:0 1px 6px rgba(0,0,0,0.06);
+    margin-bottom:20px;
+  }
+  .map-title {
+    font-size:14px;
+    font-weight:700;
+    color:var(--eau-profonde);
+    margin-bottom:16px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  #map {
+    height: 400px;
+    border-radius:12px;
+    z-index:1;
+  }
+  .spots-stats {
+    display:flex;
+    gap:12px;
+    margin-top:16px;
+    flex-wrap:wrap;
+  }
+  .spot-stat {
+    flex:1;
+    background:#f8f9fa;
+    padding:12px;
+    border-radius:10px;
+    text-align:center;
+  }
+  .spot-stat .number {
+    font-size:24px;
+    font-weight:700;
+    color:var(--eau-claire);
+  }
+  .spot-stat .label {
+    font-size:11px;
+    color:var(--gris);
+    margin-top:4px;
+  }
+
   /* ── MOBILE ONLY ─────────────────────────── */
   .bottom-nav{display:none;}
   .mobile-header{display:none;}
@@ -354,69 +415,21 @@
     .stats-grid{grid-template-columns:1fr;}
     .form-layout{grid-template-columns:1fr;gap:16px;}
     
-    /* Form responsive fixes */
-    .form-card {
-      padding: 18px;
-    }
+    .form-card { padding: 18px; }
+    .form-card-title { font-size: 16px; margin-bottom: 18px; }
+    .form-row { grid-template-columns: 1fr; gap: 0; }
+    .form-row-3 { grid-template-columns: 1fr; gap: 12px; }
+    .form-group { margin-bottom: 18px; }
     
-    .form-card-title {
-      font-size: 16px;
-      margin-bottom: 18px;
-    }
+    .meteo-btns { gap: 10px; }
+    .meteo-btn { padding: 10px 14px; font-size: 13px; flex: 1 0 auto; min-width: calc(33.33% - 10px); }
+    .star-btn { font-size: 32px; min-width: 48px; min-height: 48px; }
+    .photo-upload-area { padding: 28px 20px; }
+    .photo-upload-icon { font-size: 52px; }
+    .btn-submit { padding: 16px; font-size: 16px; }
     
-    /* Stack form rows on mobile */
-    .form-row {
-      grid-template-columns: 1fr;
-      gap: 0;
-    }
-    
-    .form-row-3 {
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-    
-    /* Better spacing for form groups */
-    .form-group {
-      margin-bottom: 18px;
-    }
-    
-    /* Meteor buttons - better fit */
-    .meteo-btns {
-      gap: 10px;
-    }
-    
-    .meteo-btn {
-      padding: 10px 14px;
-      font-size: 13px;
-      flex: 1 0 auto;
-      min-width: calc(33.33% - 10px);
-    }
-    
-    /* Stars rating - touch friendly */
-    .star-btn {
-      font-size: 32px;
-      min-width: 48px;
-      min-height: 48px;
-    }
-    
-    /* Photo upload area */
-    .photo-upload-area {
-      padding: 28px 20px;
-    }
-    
-    .photo-upload-icon {
-      font-size: 52px;
-    }
-    
-    .photo-preview {
-      max-height: 160px;
-    }
-    
-    /* Submit button */
-    .btn-submit {
-      padding: 16px;
-      font-size: 16px;
-    }
+    #map { height: 350px; }
+    .spots-stats { flex-direction: column; gap: 8px; }
 
     .bottom-nav{
       display:flex;position:fixed;bottom:0;left:0;right:0;
@@ -437,15 +450,8 @@
 
   /* Small mobile (<= 480px) */
   @media(max-width:480px){
-    .meteo-btn {
-      min-width: calc(50% - 10px);
-      font-size: 12px;
-      padding: 8px 12px;
-    }
-    
-    .form-card {
-      padding: 16px;
-    }
+    .meteo-btn { min-width: calc(50% - 10px); font-size: 12px; padding: 8px 12px; }
+    .form-card { padding: 16px; }
   }
 </style>
 </head>
@@ -476,6 +482,7 @@
   <nav class="sidebar-nav">
     <button class="nav-item active" data-view="journal" onclick="switchView('journal',this)"><span class="nav-icon">📖</span> Journal</button>
     <button class="nav-item" data-view="ajouter" onclick="switchView('ajouter',this)"><span class="nav-icon">➕</span> Ajouter une prise</button>
+    <button class="nav-item" data-view="map" onclick="switchView('map',this)"><span class="nav-icon">🗺️</span> Carte des spots</button>
     <button class="nav-item" data-view="stats" onclick="switchView('stats',this)"><span class="nav-icon">📊</span> Statistiques</button>
     <div style="height:1px;background:rgba(255,255,255,0.1);margin:10px 4px"></div>
     <button class="nav-item" onclick="exportData()"><span class="nav-icon">📤</span> Exporter</button>
@@ -551,8 +558,13 @@
           </div>
           <div class="form-group">
             <label class="form-label">📍 Lieu</label>
-            <input type="text" class="form-input" id="f-lieu" placeholder="Étang, rivière, lac…">
+            <div class="location-row">
+              <input type="text" class="form-input" id="f-lieu" placeholder="Nom du spot">
+              <button type="button" class="btn-location" onclick="getCurrentLocation()" title="Utiliser ma position">📍</button>
+            </div>
           </div>
+          <input type="hidden" id="f-lat">
+          <input type="hidden" id="f-lng">
           <div class="form-group">
             <label class="form-label">🎣 Technique</label>
             <select class="form-select" id="f-technique">
@@ -638,6 +650,18 @@
       </div>
     </div>
 
+    <!-- MAP -->
+    <div class="view" id="view-map">
+      <div class="map-container">
+        <div class="map-title">
+          <span>🗺️</span>
+          Mes spots de pêche
+        </div>
+        <div id="map"></div>
+        <div class="spots-stats" id="spots-stats"></div>
+      </div>
+    </div>
+
     <!-- STATS -->
     <div class="view" id="view-stats">
       <div class="stats-grid" id="stats-content"></div>
@@ -654,26 +678,31 @@
   <button class="mob-nav-btn" data-view="ajouter" onclick="switchView('ajouter',this)">
     <span class="nav-icon">➕</span><span class="nav-label">Ajouter</span>
   </button>
+  <button class="mob-nav-btn" data-view="map" onclick="switchView('map',this)">
+    <span class="nav-icon">🗺️</span><span class="nav-label">Carte</span>
+  </button>
   <button class="mob-nav-btn" data-view="stats" onclick="switchView('stats',this)">
     <span class="nav-icon">📊</span><span class="nav-label">Stats</span>
   </button>
   <button class="mob-nav-btn" onclick="exportData()">
     <span class="nav-icon">📤</span><span class="nav-label">Exporter</span>
   </button>
-  <button class="mob-nav-btn" onclick="document.getElementById('import-file').click()">
-    <span class="nav-icon">📥</span><span class="nav-label">Importer</span>
-  </button>
 </nav>
 
 <div class="toast" id="toast"></div>
 
+<!-- Leaflet JS pour la carte -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 let entries = JSON.parse(localStorage.getItem('peche-entries')||'[]');
 let currentFilter='tous', currentStars=0, selectedMeteo=[], isTrophy=false, isRelache=false, photoData=null;
+let map = null;
+let markers = [];
 
 const topbarTitles = {
   journal:['Mes sorties','Journal de pêche'],
   ajouter:['Nouvelle entrée','Ajouter une prise'],
+  map:['Carte des spots','Mes spots de pêche'],
   stats:["Vue d'ensemble",'Statistiques']
 };
 
@@ -682,6 +711,163 @@ function init(){
   const dateInput = document.getElementById('f-date');
   if(dateInput) dateInput.value = now.toISOString().slice(0,16);
   renderJournal(); updateStats(); updateAllStats();
+  initMap();
+}
+
+function initMap() {
+  // Centre par défaut sur la France
+  const defaultCenter = [46.2276, 2.2137];
+  
+  map = L.map('map').setView(defaultCenter, 6);
+  
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(map);
+  
+  updateMapMarkers();
+}
+
+function updateMapMarkers() {
+  if (!map) return;
+  
+  // Supprimer tous les marqueurs existants
+  markers.forEach(marker => map.removeLayer(marker));
+  markers = [];
+  
+  // Filtrer les entrées avec coordonnées
+  const spotsWithCoords = entries.filter(e => e.lat && e.lng);
+  
+  if (spotsWithCoords.length === 0) {
+    document.getElementById('spots-stats').innerHTML = `
+      <div class="spot-stat">
+        <div class="number">0</div>
+        <div class="label">Spots géolocalisés</div>
+      </div>
+      <div class="spot-stat">
+        <div class="label">Ajoutez des lieux avec la géolocalisation pour les voir sur la carte !</div>
+      </div>
+    `;
+    return;
+  }
+  
+  // Compter les prises par spot
+  const spotCount = {};
+  spotsWithCoords.forEach(e => {
+    const key = `${e.lat},${e.lng}`;
+    if (!spotCount[key]) {
+      spotCount[key] = { count: 0, especes: new Set(), lieu: e.lieu, lat: e.lat, lng: e.lng };
+    }
+    spotCount[key].count++;
+    if (e.espece) spotCount[key].especes.add(e.espece);
+  });
+  
+  // Ajouter les marqueurs
+  Object.values(spotCount).forEach(spot => {
+    const popupContent = `
+      <div style="font-family:'DM Sans',sans-serif; min-width:180px;">
+        <strong style="font-size:14px; color:#1a3a4a;">📍 ${escapeHtml(spot.lieu || 'Spot sans nom')}</strong><br>
+        <span style="font-size:12px;">🎣 ${spot.count} prise(s)</span><br>
+        <span style="font-size:12px;">🐟 ${spot.especes.size} espèce(s) différentes</span><br>
+        <span style="font-size:11px; color:#8a9aa5;">${Array.from(spot.especes).slice(0,3).join(', ')}${spot.especes.size > 3 ? '...' : ''}</span>
+      </div>
+    `;
+    
+    const marker = L.marker([spot.lat, spot.lng]).addTo(map);
+    marker.bindPopup(popupContent);
+    markers.push(marker);
+  });
+  
+  // Ajuster la vue pour voir tous les marqueurs
+  if (markers.length > 0) {
+    const group = L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.2));
+  }
+  
+  // Mettre à jour les statistiques des spots
+  const uniqueSpots = Object.keys(spotCount).length;
+  const totalCatches = spotsWithCoords.length;
+  const totalSpecies = new Set(spotsWithCoords.map(e => e.espece)).size;
+  
+  document.getElementById('spots-stats').innerHTML = `
+    <div class="spot-stat">
+      <div class="number">${uniqueSpots}</div>
+      <div class="label">Spots différents</div>
+    </div>
+    <div class="spot-stat">
+      <div class="number">${totalCatches}</div>
+      <div class="label">Prises géolocalisées</div>
+    </div>
+    <div class="spot-stat">
+      <div class="number">${totalSpecies}</div>
+      <div class="label">Espèces sur la carte</div>
+    </div>
+  `;
+}
+
+function getCurrentLocation() {
+  if (!navigator.geolocation) {
+    showToast('⚠️ Géolocalisation non supportée par votre navigateur');
+    return;
+  }
+  
+  showToast('📍 Recherche de votre position...');
+  
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      
+      document.getElementById('f-lat').value = lat;
+      document.getElementById('f-lng').value = lng;
+      
+      // Récupérer le nom du lieu via reverse geocoding
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
+        .then(response => response.json())
+        .then(data => {
+          let lieuName = '';
+          if (data.address) {
+            const parts = [];
+            if (data.address.waterway) parts.push(data.address.waterway);
+            if (data.address.river) parts.push(data.address.river);
+            if (data.address.lake) parts.push(data.address.lake);
+            if (data.address.city) parts.push(data.address.city);
+            if (data.address.town) parts.push(data.address.town);
+            if (data.address.village) parts.push(data.address.village);
+            if (parts.length > 0) lieuName = parts.join(', ');
+            else if (data.display_name) lieuName = data.display_name.split(',')[0];
+          }
+          if (lieuName) {
+            document.getElementById('f-lieu').value = lieuName;
+          }
+          showToast('📍 Position enregistrée !');
+        })
+        .catch(() => {
+          showToast('📍 Position enregistrée (nom non trouvé)');
+        });
+    },
+    (error) => {
+      let message = 'Impossible d\'obtenir la position';
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          message = '🔒 Permission de géolocalisation refusée';
+          break;
+        case error.POSITION_UNAVAILABLE:
+          message = '📡 Position non disponible';
+          break;
+        case error.TIMEOUT:
+          message = '⏱️ Délai d\'attente dépassé';
+          break;
+      }
+      showToast(message);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0
+    }
+  );
 }
 
 function switchView(name, btn){
@@ -706,6 +892,14 @@ function switchView(name, btn){
   const [sub,main] = topbarTitles[name];
   const topbarTitle = document.getElementById('topbar-title');
   if(topbarTitle) topbarTitle.innerHTML = `<small>${sub}</small>${main}`;
+  
+  // Refresh map if needed
+  if(name === 'map' && map) {
+    setTimeout(() => {
+      map.invalidateSize();
+      updateMapMarkers();
+    }, 100);
+  }
   
   // Refresh stats if needed
   if(name === 'stats') updateStats();
@@ -771,6 +965,8 @@ function saveEntry(){
     taille:document.getElementById('f-taille').value||null,
     poids:document.getElementById('f-poids').value||null,
     lieu:document.getElementById('f-lieu').value,
+    lat:document.getElementById('f-lat').value||null,
+    lng:document.getElementById('f-lng').value||null,
     technique:document.getElementById('f-technique').value,
     meteo:[...selectedMeteo],
     tempAir:document.getElementById('f-temp-air').value||null,
@@ -786,13 +982,14 @@ function saveEntry(){
   localStorage.setItem('peche-entries',JSON.stringify(entries));
   resetForm(); 
   updateAllStats();
+  if(map) updateMapMarkers();
   showToast('🎣 Sortie enregistrée !');
   switchView('journal',null); 
   renderJournal();
 }
 
 function resetForm(){
-  ['f-espece','f-taille','f-poids','f-lieu','f-technique','f-temp-air','f-temp-eau','f-lune','f-notes']
+  ['f-espece','f-taille','f-poids','f-lieu','f-technique','f-temp-air','f-temp-eau','f-lune','f-notes','f-lat','f-lng']
     .forEach(id=>{
       const el = document.getElementById(id);
       if(el) el.value='';
@@ -832,6 +1029,7 @@ function deleteEntry(id){
   localStorage.setItem('peche-entries',JSON.stringify(entries));
   renderJournal(); 
   updateAllStats();
+  if(map) updateMapMarkers();
   showToast('🗑 Entrée supprimée');
 }
 
@@ -861,6 +1059,7 @@ function renderJournal(){
     const tags=[]; 
     if(e.technique) tags.push(e.technique); 
     if(e.relache) tags.push("↩️ Remis à l'eau");
+    if(e.lat && e.lng) tags.push("📍 Géolocalisé");
     return `
       <div class="card-wrapper" style="animation-delay:${idx*0.04}s">
         ${isMobile?`<div class="card-delete-bg" onclick="deleteEntry(${e.id})">🗑<span>Supprimer</span></div>`:''}
@@ -974,6 +1173,7 @@ function updateStats(){
   const lx={};
   entries.forEach(e=>{if(e.lieu)lx[e.lieu]=(lx[e.lieu]||0)+1;});
   const tL=Object.entries(lx).sort((a,b)=>b[1]-a[1])[0];
+  const spotsWithCoords = entries.filter(e=>e.lat && e.lng).length;
 
   el.innerHTML=`
     <div class="stat-card">
@@ -989,6 +1189,7 @@ function updateStats(){
     <div class="stat-card">
       <div class="stat-card-title">📋 Résumé</div>
       <div class="record-item"><span class="record-icon">🎣</span><div class="record-info"><div class="species">Total sorties</div></div><span class="record-value">${entries.length}</span></div>
+      <div class="record-item"><span class="record-icon">🗺️</span><div class="record-info"><div class="species">Spots géolocalisés</div></div><span class="record-value">${spotsWithCoords}</span></div>
       <div class="record-item"><span class="record-icon">🏆</span><div class="record-info"><div class="species">Trophées</div></div><span class="record-value">${entries.filter(e=>e.trophy).length}</span></div>
       ${tL?`<div class="record-item"><span class="record-icon">📍</span><div class="record-info"><div class="species">Spot favori</div><div class="detail">${tL[1]} visite${tL[1]>1?'s':''}</div></div><span class="record-value" style="font-size:13px;max-width:110px;text-align:right">${escapeHtml(tL[0])}</span></div>`:''}
       <div class="record-item"><span class="record-icon">↩️</span><div class="record-info"><div class="species">Remises à l'eau</div></div><span class="record-value">${entries.filter(e=>e.relache).length}</span></div>
@@ -1034,6 +1235,7 @@ function importData(event){
       localStorage.setItem('peche-entries', JSON.stringify(entries));
       renderJournal(); 
       updateAllStats();
+      if(map) updateMapMarkers();
       if(document.getElementById('view-stats')?.classList.contains('active')) updateStats();
       showToast(`📥 ${nouveaux.length} nouvelle(s) sortie(s) importée(s) !`);
     } catch(err) {
@@ -1047,6 +1249,7 @@ function importData(event){
 let rt;
 window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(()=>{
   renderJournal();
+  if(map) map.invalidateSize();
   if(document.getElementById('view-stats')?.classList.contains('active')) updateStats();
 },200); });
 

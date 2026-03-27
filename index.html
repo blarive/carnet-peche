@@ -2,17 +2,15 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Carnet de Pêche</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --eau: #1a3a4a;
     --eau-profonde: #0d2231;
     --eau-claire: #2a6080;
-    --roseau: #8b6914;
     --sable: #e8d5a3;
     --mousse: #4a7c59;
     --eclair: #f0c040;
@@ -20,1160 +18,705 @@
     --texte: #1a2a35;
     --gris: #8a9aa5;
     --rouge: #c0392b;
-    --ombre: 0 4px 24px rgba(13,34,49,0.18);
-    --radius: 16px;
+    --radius: 14px;
+    --sidebar-w: 240px;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; }
 
   body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--eau-profonde);
-    color: var(--blanc);
-    min-height: 100vh;
-    max-width: 430px;
-    margin: 0 auto;
-    overflow-x: hidden;
+    font-family:'DM Sans',sans-serif;
+    background:#eef2f5;
+    color:var(--texte);
+    display:flex;
+    min-height:100vh;
   }
 
-  /* FOND ANIMÉ */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 260px;
-    background: linear-gradient(180deg, var(--eau) 0%, var(--eau-profonde) 100%);
-    z-index: 0;
+  /* ── SIDEBAR ─────────────────────────────── */
+  .sidebar {
+    width:var(--sidebar-w);
+    background:linear-gradient(180deg,var(--eau-profonde) 0%,var(--eau) 100%);
+    display:flex;
+    flex-direction:column;
+    flex-shrink:0;
+    position:fixed;
+    top:0;left:0;bottom:0;
+    z-index:100;
+    overflow:hidden;
   }
-  body::after {
-    content: '';
-    position: fixed;
-    top: 180px; left: -10%;
-    width: 120%;
-    height: 80px;
-    background: rgba(42,96,128,0.25);
-    border-radius: 50%;
-    filter: blur(20px);
-    animation: vague 6s ease-in-out infinite;
-    z-index: 0;
+  .sidebar::after {
+    content:'';position:absolute;bottom:60px;left:-20%;
+    width:140%;height:100px;
+    background:rgba(42,96,128,0.2);border-radius:50%;filter:blur(30px);
+    animation:vague 7s ease-in-out infinite;pointer-events:none;
   }
-  @keyframes vague {
-    0%, 100% { transform: translateX(0) scaleY(1); }
-    50% { transform: translateX(3%) scaleY(1.15); }
-  }
+  @keyframes vague{0%,100%{transform:translateX(0) scaleY(1)}50%{transform:translateX(4%) scaleY(1.2)}}
 
-  /* HEADER */
-  .header {
-    position: relative;
-    z-index: 10;
-    padding: 52px 24px 20px;
-    text-align: center;
-  }
-  .header-icon {
-    font-size: 42px;
-    display: block;
-    margin-bottom: 6px;
-    filter: drop-shadow(0 2px 8px rgba(240,192,64,0.5));
-  }
-  .header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--sable);
-    letter-spacing: 0.5px;
-  }
-  .header p {
-    font-size: 12px;
-    color: var(--gris);
-    margin-top: 2px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-  }
+  .sidebar-logo { padding:32px 24px 20px; position:relative; z-index:1; }
+  .sidebar-logo .icon { font-size:34px;display:block;margin-bottom:8px;filter:drop-shadow(0 2px 8px rgba(240,192,64,0.5)); }
+  .sidebar-logo h1 { font-family:'Playfair Display',serif;font-size:19px;color:var(--sable);line-height:1.2; }
+  .sidebar-logo p { font-size:10px;color:var(--gris);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px; }
 
-  /* STATS BAR */
-  .stats-bar {
-    position: relative;
-    z-index: 10;
-    display: flex;
-    gap: 10px;
-    padding: 0 16px 20px;
-  }
-  .stat-pill {
-    flex: 1;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    padding: 10px 8px;
-    text-align: center;
-    backdrop-filter: blur(10px);
-  }
-  .stat-pill .num {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    color: var(--eclair);
-    display: block;
-    line-height: 1;
-  }
-  .stat-pill .label {
-    font-size: 10px;
-    color: var(--gris);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-top: 3px;
-  }
+  .sidebar-stats { display:flex;flex-direction:column;gap:8px;padding:0 16px 20px;position:relative;z-index:1; }
+  .sidebar-stat { background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center; }
+  .sidebar-stat .label { font-size:11px;color:var(--gris);text-transform:uppercase;letter-spacing:0.8px; }
+  .sidebar-stat .num { font-family:'Playfair Display',serif;font-size:20px;color:var(--eclair); }
 
-  /* NAV TABS */
-  .tabs {
-    position: relative;
-    z-index: 10;
-    display: flex;
-    gap: 6px;
-    padding: 0 16px 16px;
+  .sidebar-nav { flex:1;padding:8px 12px;position:relative;z-index:1; }
+  .nav-item {
+    display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;cursor:pointer;
+    color:var(--gris);font-size:14px;font-weight:500;transition:all 0.2s;
+    border:none;background:none;width:100%;text-align:left;margin-bottom:4px;
   }
-  .tab-btn {
-    flex: 1;
-    padding: 10px 6px;
-    border: none;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.06);
-    color: var(--gris);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.3px;
-  }
-  .tab-btn.active {
-    background: var(--eclair);
-    color: var(--eau-profonde);
-    font-weight: 700;
-  }
-  .tab-btn span { display: block; font-size: 16px; margin-bottom: 2px; }
+  .nav-item .nav-icon{font-size:20px;width:24px;text-align:center;}
+  .nav-item:hover{background:rgba(255,255,255,0.07);color:white;}
+  .nav-item.active{background:var(--eclair);color:var(--eau-profonde);font-weight:700;}
 
-  /* MAIN CONTENT */
-  .main {
-    position: relative;
-    z-index: 10;
-    background: var(--blanc);
-    color: var(--texte);
-    border-radius: 24px 24px 0 0;
-    min-height: calc(100vh - 260px);
-    padding: 24px 16px 100px;
-  }
+  /* ── APP BODY ────────────────────────────── */
+  .app-body { flex:1;margin-left:var(--sidebar-w);display:flex;flex-direction:column;min-height:100vh; }
 
-  /* SECTION VIEWS */
-  .view { display: none; }
-  .view.active { display: block; }
+  /* ── TOP BAR ─────────────────────────────── */
+  .topbar {
+    background:white;border-bottom:1px solid #e0e6ea;
+    padding:16px 28px;display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:50;
+  }
+  .topbar-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--eau-profonde);}
+  .topbar-title small{font-family:'DM Sans',sans-serif;font-size:11px;color:var(--gris);font-weight:400;display:block;text-transform:uppercase;letter-spacing:1px;}
+  .btn-primary {
+    padding:9px 20px;background:linear-gradient(135deg,var(--eau) 0%,var(--eau-claire) 100%);
+    color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;
+    font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;
+    transition:opacity 0.15s,transform 0.15s;
+  }
+  .btn-primary:hover{opacity:0.9;} .btn-primary:active{transform:scale(0.97);}
 
-  /* SECTION TITLE */
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    color: var(--eau-profonde);
-    margin-bottom: 16px;
-  }
-  .section-title small {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 11px;
-    color: var(--gris);
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    display: block;
-    font-style: normal;
-  }
+  /* ── PAGE CONTENT ────────────────────────── */
+  .page-content { flex:1;padding:24px 28px 40px;max-width:1100px; }
+  .view{display:none;} .view.active{display:block;}
 
-  /* FORM */
-  .form-group { margin-bottom: 14px; }
-  .form-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--gris);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 6px;
-    display: block;
-  }
-  .form-input, .form-select, .form-textarea {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1.5px solid #ddd;
-    border-radius: 12px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    color: var(--texte);
-    background: #fafaf8;
-    outline: none;
-    transition: border-color 0.2s;
-    appearance: none;
-  }
-  .form-input:focus, .form-select:focus, .form-textarea:focus {
-    border-color: var(--eau-claire);
-  }
-  .form-textarea { resize: none; height: 80px; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-
-  /* RATING STARS */
-  .stars-input { display: flex; gap: 6px; }
-  .star-btn {
-    font-size: 26px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    filter: grayscale(1) opacity(0.3);
-    transition: all 0.15s;
-    padding: 2px;
-  }
-  .star-btn.active { filter: none; transform: scale(1.1); }
-
-  /* METEO BUTTONS */
-  .meteo-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-  .meteo-btn {
-    padding: 8px 14px;
-    border: 1.5px solid #ddd;
-    border-radius: 20px;
-    background: none;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.15s;
-    color: var(--texte);
-    font-family: 'DM Sans', sans-serif;
-  }
-  .meteo-btn.selected {
-    border-color: var(--eau-claire);
-    background: rgba(42,96,128,0.12);
-    color: var(--eau-claire);
-    font-weight: 600;
-  }
-
-  /* SUBMIT BTN */
-  .btn-submit {
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, var(--eau) 0%, var(--eau-claire) 100%);
-    color: white;
-    border: none;
-    border-radius: 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 6px;
-    box-shadow: 0 6px 20px rgba(26,58,74,0.3);
-    transition: transform 0.15s, box-shadow 0.15s;
-    letter-spacing: 0.3px;
-  }
-  .btn-submit:active { transform: scale(0.98); box-shadow: 0 2px 10px rgba(26,58,74,0.2); }
-
-  /* SUCCESS TOAST */
-  .toast {
-    position: fixed;
-    bottom: 90px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--mousse);
-    color: white;
-    padding: 12px 24px;
-    border-radius: 30px;
-    font-size: 14px;
-    font-weight: 500;
-    opacity: 0;
-    transition: all 0.3s;
-    z-index: 1000;
-    white-space: nowrap;
-    box-shadow: var(--ombre);
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* JOURNAL LIST */
-  .journal-filters {
-    display: flex;
-    gap: 6px;
-    margin-bottom: 16px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    scrollbar-width: none;
-  }
-  .journal-filters::-webkit-scrollbar { display: none; }
-  .filter-pill {
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 1.5px solid #ddd;
-    background: none;
-    font-size: 12px;
-    white-space: nowrap;
-    cursor: pointer;
-    color: var(--gris);
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s;
-  }
-  .filter-pill.active {
-    background: var(--eau-profonde);
-    border-color: var(--eau-profonde);
-    color: white;
-  }
-
-  .search-box {
-    position: relative;
-    margin-bottom: 14px;
-  }
+  /* ── JOURNAL ─────────────────────────────── */
+  .journal-toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+  .search-box{position:relative;flex:1;min-width:180px;}
   .search-box input {
-    width: 100%;
-    padding: 11px 14px 11px 38px;
-    border: 1.5px solid #ddd;
-    border-radius: 12px;
-    font-size: 14px;
-    font-family: 'DM Sans', sans-serif;
-    outline: none;
-    background: #fafaf8;
-    color: var(--texte);
+    width:100%;padding:10px 14px 10px 36px;border:1.5px solid #ddd;border-radius:10px;
+    font-size:14px;font-family:'DM Sans',sans-serif;outline:none;background:white;color:var(--texte);transition:border-color 0.2s;
   }
-  .search-box::before {
-    content: '🔍';
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 14px;
+  .search-box input:focus{border-color:var(--eau-claire);}
+  .search-box::before{content:'🔍';position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:13px;}
+
+  .filter-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+  .filter-pill {
+    padding:6px 14px;border-radius:20px;border:1.5px solid #ddd;background:white;
+    font-size:12px;white-space:nowrap;cursor:pointer;color:var(--gris);
+    font-family:'DM Sans',sans-serif;transition:all 0.15s;
   }
+  .filter-pill.active{background:var(--eau-profonde);border-color:var(--eau-profonde);color:white;font-weight:600;}
+
+  .cards-grid{display:grid;grid-template-columns:1fr;gap:12px;}
+
+  /* ── CARD / SWIPE ────────────────────────── */
+  .card-wrapper{position:relative;border-radius:var(--radius);overflow:hidden;}
+  .card-delete-bg {
+    position:absolute;top:0;right:0;bottom:0;width:90px;
+    background:var(--rouge);display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:4px;color:white;font-size:20px;cursor:pointer;border-radius:var(--radius);
+  }
+  .card-delete-bg span{font-size:10px;font-weight:600;}
 
   .entry-card {
-    background: white;
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-    border-left: 4px solid var(--eau-claire);
-    position: relative;
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.15s;
+    background:white;border-radius:var(--radius);padding:16px 18px;
+    border-left:4px solid var(--eau-claire);position:relative;
+    transition:transform 0.25s cubic-bezier(.2,.8,.3,1),box-shadow 0.2s;
+    will-change:transform;touch-action:pan-y;user-select:none;
+    box-shadow:0 1px 6px rgba(0,0,0,0.06);
   }
-  .entry-card:active { transform: scale(0.99); }
-  .entry-card.trophy { border-left-color: var(--eclair); }
+  .entry-card:hover{box-shadow:0 4px 18px rgba(0,0,0,0.1);}
+  .entry-card.swiping{transition:none;}
+  .entry-card.trophy{border-left-color:var(--eclair);}
 
-  .entry-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 10px;
+  .btn-delete-desktop {
+    display:none;position:absolute;top:12px;right:14px;
+    background:#fee;border:1.5px solid #fcc;color:var(--rouge);border-radius:8px;
+    padding:4px 10px;font-size:12px;font-weight:600;cursor:pointer;
+    font-family:'DM Sans',sans-serif;transition:background 0.15s;
   }
-  .entry-species {
-    font-family: 'Playfair Display', serif;
-    font-size: 17px;
-    font-style: italic;
-    color: var(--eau-profonde);
-  }
-  .entry-date {
-    font-size: 11px;
-    color: var(--gris);
-    text-align: right;
-  }
-  .entry-meta {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    margin-bottom: 8px;
-  }
-  .entry-meta-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 13px;
-    color: #555;
-  }
-  .entry-meta-item span:first-child { font-size: 15px; }
-  .entry-tags {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-  }
-  .tag {
-    padding: 3px 10px;
-    border-radius: 10px;
-    font-size: 11px;
-    background: rgba(42,96,128,0.1);
-    color: var(--eau-claire);
-    font-weight: 500;
-  }
-  .tag.gold { background: rgba(240,192,64,0.15); color: #a07a00; }
-  .entry-stars { font-size: 13px; }
-  .entry-notes {
-    font-size: 13px;
-    color: #666;
-    margin-top: 6px;
-    font-style: italic;
-    line-height: 1.4;
-  }
-  .btn-delete {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: none;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    opacity: 0.3;
-    transition: opacity 0.15s;
-  }
-  .btn-delete:hover { opacity: 0.8; }
+  .btn-delete-desktop:hover{background:var(--rouge);color:white;}
 
-  .empty-state {
-    text-align: center;
-    padding: 48px 24px;
-    color: var(--gris);
-  }
-  .empty-state .icon { font-size: 56px; margin-bottom: 12px; display: block; opacity: 0.5; }
-  .empty-state p { font-size: 15px; }
+  .entry-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;padding-right:90px;}
+  .entry-species{font-family:'Playfair Display',serif;font-size:17px;font-style:italic;color:var(--eau-profonde);}
+  .entry-date{font-size:11px;color:var(--gris);text-align:right;}
+  .entry-meta{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:6px;}
+  .entry-meta-item{display:flex;align-items:center;gap:4px;font-size:13px;color:#555;}
+  .entry-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .tag{padding:3px 10px;border-radius:10px;font-size:11px;background:rgba(42,96,128,0.1);color:var(--eau-claire);font-weight:500;}
+  .entry-stars{font-size:13px;margin-top:4px;}
+  .entry-notes{font-size:13px;color:#666;margin-top:6px;font-style:italic;line-height:1.4;}
+  .photo-badge{display:inline-block;background:linear-gradient(135deg,var(--eclair),#e0a800);color:var(--eau-profonde);padding:2px 9px;border-radius:8px;font-size:10px;font-weight:700;margin-left:6px;}
 
-  /* STATS VIEW */
-  .stat-card {
-    background: white;
-    border-radius: var(--radius);
-    padding: 18px;
-    margin-bottom: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-  }
-  .stat-card-title {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--gris);
-    margin-bottom: 14px;
-    font-weight: 600;
-  }
-  .species-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  .species-name { font-size: 14px; width: 90px; flex-shrink: 0; color: var(--texte); }
-  .bar-track {
-    flex: 1;
-    height: 8px;
-    background: #eee;
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--eau) 0%, var(--eau-claire) 100%);
-    border-radius: 4px;
-    transition: width 0.5s ease;
-  }
-  .bar-count { font-size: 13px; color: var(--gris); min-width: 20px; text-align: right; }
+  .empty-state{text-align:center;padding:56px 24px;color:var(--gris);}
+  .empty-state .icon{font-size:56px;margin-bottom:12px;display:block;opacity:0.4;}
 
-  .record-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid #f0f0f0;
+  /* ── FORM ────────────────────────────────── */
+  .form-layout{display:grid;grid-template-columns:1fr;gap:0;}
+  .form-card{background:white;border-radius:var(--radius);padding:24px;box-shadow:0 1px 6px rgba(0,0,0,0.06);margin-bottom:16px;}
+  .form-card-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gris);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #eee;}
+  .form-group{margin-bottom:14px;}
+  .form-label{font-size:11px;font-weight:600;color:var(--gris);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block;}
+  .form-input,.form-select,.form-textarea {
+    width:100%;padding:11px 14px;border:1.5px solid #ddd;border-radius:10px;
+    font-family:'DM Sans',sans-serif;font-size:14px;color:var(--texte);
+    background:#fafaf8;outline:none;transition:border-color 0.2s;appearance:none;
   }
-  .record-item:last-child { border-bottom: none; }
-  .record-icon { font-size: 28px; }
-  .record-info { flex: 1; }
-  .record-info .species { font-family: 'Playfair Display', serif; font-style: italic; font-size: 15px; }
-  .record-info .detail { font-size: 12px; color: var(--gris); margin-top: 2px; }
-  .record-value { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--eclair); }
+  .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--eau-claire);}
+  .form-textarea{resize:none;height:80px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
 
-  /* BOTTOM NAV */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 430px;
-    background: white;
-    border-top: 1px solid #eee;
-    display: flex;
-    padding: 8px 0 env(safe-area-inset-bottom, 8px);
-    z-index: 100;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
-  }
-  .nav-btn {
-    flex: 1;
-    background: none;
-    border: none;
-    padding: 6px 4px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    transition: transform 0.15s;
-  }
-  .nav-btn:active { transform: scale(0.9); }
-  .nav-btn .nav-icon { font-size: 22px; }
-  .nav-btn .nav-label {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 10px;
-    font-weight: 500;
-    color: var(--gris);
-    letter-spacing: 0.3px;
-  }
-  .nav-btn.active .nav-label { color: var(--eau-claire); font-weight: 700; }
-  .nav-btn.active .nav-icon { filter: drop-shadow(0 0 4px rgba(42,96,128,0.5)); }
+  .stars-input{display:flex;gap:6px;}
+  .star-btn{font-size:26px;background:none;border:none;cursor:pointer;filter:grayscale(1) opacity(0.3);transition:all 0.15s;padding:2px;}
+  .star-btn.active{filter:none;transform:scale(1.1);}
 
-  /* ADD BUTTON */
-  .fab {
-    width: 56px;
-    height: 56px;
-    background: linear-gradient(135deg, var(--eau) 0%, var(--eau-claire) 100%);
-    border-radius: 50%;
-    border: none;
-    color: white;
-    font-size: 28px;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(42,96,128,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: -20px;
-    transition: transform 0.15s;
-  }
-  .fab:active { transform: scale(0.9); }
+  .meteo-btns{display:flex;gap:8px;flex-wrap:wrap;}
+  .meteo-btn{padding:8px 14px;border:1.5px solid #ddd;border-radius:20px;background:none;font-size:13px;cursor:pointer;transition:all 0.15s;color:var(--texte);font-family:'DM Sans',sans-serif;}
+  .meteo-btn.selected{border-color:var(--eau-claire);background:rgba(42,96,128,0.1);color:var(--eau-claire);font-weight:600;}
 
-  /* PHOTO BADGE */
-  .photo-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, var(--eclair), #e0a800);
-    color: var(--eau-profonde);
-    padding: 3px 10px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 700;
-    margin-left: 6px;
+  .btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--eau) 0%,var(--eau-claire) 100%);color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(26,58,74,0.25);transition:transform 0.15s;}
+  .btn-submit:active{transform:scale(0.98);}
+
+  .photo-upload{border:2px dashed #ccc;border-radius:10px;padding:20px;text-align:center;cursor:pointer;background:#fafaf8;transition:border-color 0.2s;}
+  .photo-upload:hover{border-color:var(--eau-claire);}
+  .photo-upload input{display:none;}
+  .photo-upload .icon{font-size:28px;display:block;margin-bottom:6px;}
+  .photo-upload p{font-size:13px;color:var(--gris);}
+  .photo-preview{width:100%;height:160px;object-fit:cover;border-radius:10px;display:none;}
+
+  /* ── STATS ───────────────────────────────── */
+  .stats-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+  .stat-card{background:white;border-radius:var(--radius);padding:20px;box-shadow:0 1px 6px rgba(0,0,0,0.06);}
+  .stat-card-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gris);margin-bottom:14px;font-weight:700;}
+  .species-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .species-name{font-size:14px;width:100px;flex-shrink:0;color:var(--texte);}
+  .bar-track{flex:1;height:8px;background:#eee;border-radius:4px;overflow:hidden;}
+  .bar-fill{height:100%;background:linear-gradient(90deg,var(--eau) 0%,var(--eau-claire) 100%);border-radius:4px;transition:width 0.5s ease;}
+  .bar-count{font-size:13px;color:var(--gris);min-width:20px;text-align:right;}
+  .record-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0f0f0;}
+  .record-item:last-child{border-bottom:none;}
+  .record-icon{font-size:26px;}
+  .record-info{flex:1;}
+  .record-info .species{font-family:'Playfair Display',serif;font-style:italic;font-size:15px;}
+  .record-info .detail{font-size:12px;color:var(--gris);margin-top:2px;}
+  .record-value{font-family:'Playfair Display',serif;font-size:20px;color:var(--eclair);}
+
+  /* ── MOBILE ONLY ─────────────────────────── */
+  .bottom-nav{display:none;}
+  .mobile-header{display:none;}
+  .mobile-stats-bar{display:none;}
+
+  /* ── TOAST ───────────────────────────────── */
+  .toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--mousse);color:white;padding:12px 24px;border-radius:30px;font-size:14px;font-weight:500;opacity:0;transition:all 0.3s;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.15);}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @keyframes slideUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  .card-wrapper{animation:slideUp 0.3s ease both;}
+
+  /* ══════════════════════════════════════════
+     TABLETTE (768–1024px)
+  ══════════════════════════════════════════ */
+  @media(min-width:768px){
+    .cards-grid{grid-template-columns:1fr 1fr;}
+    .stats-grid{grid-template-columns:1fr 1fr;}
+    .form-layout{grid-template-columns:1fr 1fr;gap:16px;}
+    .form-card.full{grid-column:1/-1;}
+    .btn-delete-desktop{display:block;}
+    .card-delete-bg{display:none;}
   }
 
-  /* SLIDER */
-  input[type=range] {
-    width: 100%;
-    height: 6px;
-    border-radius: 3px;
-    appearance: none;
-    background: linear-gradient(90deg, var(--eau-claire) 0%, var(--eau-claire) var(--val, 50%), #ddd var(--val, 50%));
-    outline: none;
-  }
-  input[type=range]::-webkit-slider-thumb {
-    appearance: none;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: var(--eau);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    cursor: pointer;
-  }
-  .slider-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: var(--gris);
-    margin-top: 4px;
-  }
-  .slider-val {
-    text-align: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    color: var(--eau);
-    margin: 4px 0;
+  @media(min-width:1024px){
+    .cards-grid{grid-template-columns:1fr 1fr 1fr;}
+    .stats-grid{grid-template-columns:1fr 1fr 1fr;}
+    .page-content{padding:28px 36px 48px;}
   }
 
-  /* DIVIDER */
-  .divider {
-    height: 1px;
-    background: #eee;
-    margin: 18px 0;
-  }
+  /* ══════════════════════════════════════════
+     MOBILE (< 768px)
+  ══════════════════════════════════════════ */
+  @media(max-width:767px){
+    body{display:block;background:var(--eau-profonde);}
+    body::before{content:'';position:fixed;top:0;left:0;right:0;height:210px;background:linear-gradient(180deg,var(--eau) 0%,var(--eau-profonde) 100%);z-index:0;}
+    body::after{content:'';position:fixed;top:155px;left:-10%;width:120%;height:70px;background:rgba(42,96,128,0.25);border-radius:50%;filter:blur(20px);animation:vague 6s ease-in-out infinite;z-index:0;}
 
-  /* PHOTO UPLOAD */
-  .photo-upload {
-    border: 2px dashed #ccc;
-    border-radius: 12px;
-    padding: 20px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s;
-    background: #fafaf8;
-  }
-  .photo-upload:hover { border-color: var(--eau-claire); }
-  .photo-upload input { display: none; }
-  .photo-upload .icon { font-size: 32px; display: block; margin-bottom: 6px; }
-  .photo-upload p { font-size: 13px; color: var(--gris); }
-  .photo-preview {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 12px;
-    display: none;
-  }
+    .sidebar{display:none;}
+    .topbar{display:none;}
 
-  /* ANIMATIONS */
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .entry-card { animation: slideUp 0.3s ease both; }
+    .mobile-header{
+      display:block;position:fixed;top:0;left:0;right:0;z-index:50;
+      padding:38px 20px 8px;text-align:center;
+    }
+    .mobile-header .icon{font-size:32px;display:block;margin-bottom:4px;filter:drop-shadow(0 2px 8px rgba(240,192,64,0.5));}
+    .mobile-header h1{font-family:'Playfair Display',serif;font-size:20px;color:var(--sable);}
 
-  /* RESPONSIVE adjustments */
-  @media (max-width: 360px) {
-    .header h1 { font-size: 22px; }
-    .form-row-3 { grid-template-columns: 1fr 1fr; }
+    .mobile-stats-bar{
+      display:flex;gap:8px;
+      position:fixed;top:104px;left:0;right:0;padding:0 14px;z-index:50;
+    }
+    .mob-stat{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:8px 6px;text-align:center;backdrop-filter:blur(8px);}
+    .mob-stat .num{font-family:'Playfair Display',serif;font-size:18px;color:var(--eclair);display:block;}
+    .mob-stat .label{font-size:9px;color:var(--gris);text-transform:uppercase;letter-spacing:0.7px;}
+
+    .app-body{
+      margin-left:0;background:var(--blanc);
+      border-radius:24px 24px 0 0;margin-top:168px;min-height:calc(100vh - 168px);
+    }
+    .page-content{padding:16px 14px 88px;}
+    .cards-grid{grid-template-columns:1fr;}
+    .stats-grid{grid-template-columns:1fr;}
+    .form-layout{grid-template-columns:1fr;}
+    .form-card{padding:16px;}
+
+    .bottom-nav{
+      display:flex;position:fixed;bottom:0;left:0;right:0;
+      background:white;border-top:1px solid #eee;
+      padding:6px 0 env(safe-area-inset-bottom,6px);z-index:100;
+      box-shadow:0 -4px 20px rgba(0,0,0,0.08);
+    }
+    .mob-nav-btn{flex:1;background:none;border:none;padding:6px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;}
+    .mob-nav-btn .nav-icon{font-size:22px;}
+    .mob-nav-btn .nav-label{font-size:10px;font-weight:500;color:var(--gris);font-family:'DM Sans',sans-serif;}
+    .mob-nav-btn.active .nav-label{color:var(--eau-claire);font-weight:700;}
+    .toast{bottom:80px;}
+    .btn-delete-desktop{display:none;}
   }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <span class="header-icon">🎣</span>
-  <h1>Mon Carnet de Pêche</h1>
-  <p>Journal du pêcheur</p>
+<!-- MOBILE HEADER -->
+<div class="mobile-header">
+  <span class="icon">🎣</span>
+  <h1>Carnet de Pêche</h1>
+</div>
+<div class="mobile-stats-bar">
+  <div class="mob-stat"><span class="num" id="m-total">0</span><span class="label">Sorties</span></div>
+  <div class="mob-stat"><span class="num" id="m-poissons">0</span><span class="label">Espèces</span></div>
+  <div class="mob-stat"><span class="num" id="m-record">—</span><span class="label">Record</span></div>
 </div>
 
-<!-- STATS BAR -->
-<div class="stats-bar">
-  <div class="stat-pill">
-    <span class="num" id="stat-total">0</span>
-    <span class="label">Sorties</span>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <span class="icon">🎣</span>
+    <h1>Carnet<br>de Pêche</h1>
+    <p>Journal du pêcheur</p>
   </div>
-  <div class="stat-pill">
-    <span class="num" id="stat-poissons">0</span>
-    <span class="label">Poissons</span>
+  <div class="sidebar-stats">
+    <div class="sidebar-stat"><span class="label">Sorties</span><span class="num" id="s-total">0</span></div>
+    <div class="sidebar-stat"><span class="label">Record</span><span class="num" id="s-record" style="font-size:14px">—</span></div>
   </div>
-  <div class="stat-pill">
-    <span class="num" id="stat-record">—</span>
-    <span class="label">Record</span>
+  <nav class="sidebar-nav">
+    <button class="nav-item active" onclick="switchView('journal',this)"><span class="nav-icon">📖</span> Journal</button>
+    <button class="nav-item" onclick="switchView('ajouter',this)"><span class="nav-icon">➕</span> Ajouter une prise</button>
+    <button class="nav-item" onclick="switchView('stats',this)"><span class="nav-icon">📊</span> Statistiques</button>
+  </nav>
+</aside>
+
+<!-- APP BODY -->
+<div class="app-body">
+
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title"><small>Mes sorties</small>Journal de pêche</div>
+    <div><button class="btn-primary" onclick="switchView('ajouter',null)">➕ Nouvelle prise</button></div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- JOURNAL -->
+    <div class="view active" id="view-journal">
+      <div class="journal-toolbar">
+        <div class="search-box"><input type="text" placeholder="Rechercher espèce, lieu…" id="search-input" oninput="renderJournal()"></div>
+      </div>
+      <div class="filter-pills">
+        <button class="filter-pill active" onclick="setFilter('tous',this)">Toutes</button>
+        <button class="filter-pill" onclick="setFilter('Carpe',this)">🐟 Carpe</button>
+        <button class="filter-pill" onclick="setFilter('Brochet',this)">🦈 Brochet</button>
+        <button class="filter-pill" onclick="setFilter('Truite',this)">🐠 Truite</button>
+        <button class="filter-pill" onclick="setFilter('Sandre',this)">🐡 Sandre</button>
+        <button class="filter-pill" onclick="setFilter('Perche',this)">Perche</button>
+        <button class="filter-pill" onclick="setFilter('trophy',this)">🏆 Trophées</button>
+      </div>
+      <div class="cards-grid" id="journal-list"></div>
+    </div>
+
+    <!-- AJOUTER -->
+    <div class="view" id="view-ajouter">
+      <div class="form-layout">
+
+        <div class="form-card">
+          <div class="form-card-title">📋 Informations principales</div>
+          <div class="form-group">
+            <label class="form-label">📅 Date & Heure</label>
+            <input type="datetime-local" class="form-input" id="f-date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">🐟 Espèce</label>
+            <select class="form-select" id="f-espece">
+              <option value="">— Sélectionner —</option>
+              <option>Carpe</option><option>Brochet</option><option>Truite fario</option>
+              <option>Truite arc-en-ciel</option><option>Sandre</option><option>Perche</option>
+              <option>Gardon</option><option>Rotengle</option><option>Tanche</option>
+              <option>Anguille</option><option>Black-bass</option><option>Silure</option>
+              <option>Barbeau</option><option>Chevesne</option><option>Ablette</option><option>Autre</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">📏 Taille (cm)</label>
+              <input type="number" class="form-input" id="f-taille" placeholder="ex. 45">
+            </div>
+            <div class="form-group">
+              <label class="form-label">⚖️ Poids (g)</label>
+              <input type="number" class="form-input" id="f-poids" placeholder="ex. 1200">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">📍 Lieu</label>
+            <input type="text" class="form-input" id="f-lieu" placeholder="Étang, rivière, lac…">
+          </div>
+          <div class="form-group">
+            <label class="form-label">🎣 Technique</label>
+            <select class="form-select" id="f-technique">
+              <option value="">— Technique —</option>
+              <option>Carpe — Cheveu</option><option>Lancer — Cuillère</option>
+              <option>Lancer — Leurre souple</option><option>Lancer — Popper</option>
+              <option>Mouche sèche</option><option>Mouche noyée</option>
+              <option>Toc / Vairon</option><option>Feeder</option>
+              <option>Bolognaise</option><option>Pêche au coup</option>
+              <option>Pêche au posé</option><option>Pêche au vif</option><option>Autre</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div class="form-card-title">🌤 Conditions & Notes</div>
+          <div class="form-group">
+            <label class="form-label">🌤 Météo</label>
+            <div class="meteo-btns">
+              <button class="meteo-btn" onclick="toggleMeteo(this,'☀️ Soleil')">☀️ Soleil</button>
+              <button class="meteo-btn" onclick="toggleMeteo(this,'⛅ Nuageux')">⛅ Nuageux</button>
+              <button class="meteo-btn" onclick="toggleMeteo(this,'🌧 Pluie')">🌧 Pluie</button>
+              <button class="meteo-btn" onclick="toggleMeteo(this,'💨 Vent')">💨 Vent</button>
+              <button class="meteo-btn" onclick="toggleMeteo(this,'🌫 Brume')">🌫 Brume</button>
+              <button class="meteo-btn" onclick="toggleMeteo(this,'❄️ Froid')">❄️ Froid</button>
+            </div>
+          </div>
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">🌡 Air (°C)</label>
+              <input type="number" class="form-input" id="f-temp-air" placeholder="18">
+            </div>
+            <div class="form-group">
+              <label class="form-label">💧 Eau (°C)</label>
+              <input type="number" class="form-input" id="f-temp-eau" placeholder="14">
+            </div>
+            <div class="form-group">
+              <label class="form-label">🌙 Lune</label>
+              <select class="form-select" id="f-lune">
+                <option value="">—</option>
+                <option>🌑 NL</option><option>🌒 CC</option><option>🌓 PQ</option>
+                <option>🌔 GC</option><option>🌕 PL</option><option>🌖 GD</option>
+                <option>🌗 DQ</option><option>🌘 CD</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">⭐ Note de la sortie</label>
+            <div class="stars-input">
+              <button class="star-btn" onclick="setStar(1)">⭐</button>
+              <button class="star-btn" onclick="setStar(2)">⭐</button>
+              <button class="star-btn" onclick="setStar(3)">⭐</button>
+              <button class="star-btn" onclick="setStar(4)">⭐</button>
+              <button class="star-btn" onclick="setStar(5)">⭐</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">🏅 Statut</label>
+            <div class="meteo-btns">
+              <button class="meteo-btn" id="btn-trophy" onclick="toggleTrophy(this)">🏆 Trophée</button>
+              <button class="meteo-btn" id="btn-relache" onclick="toggleRelache(this)">↩️ Remis à l'eau</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">📝 Notes</label>
+            <textarea class="form-textarea" id="f-notes" placeholder="Appâts, conditions, anecdotes…"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">📸 Photo</label>
+            <label class="photo-upload" for="f-photo">
+              <input type="file" id="f-photo" accept="image/*" onchange="previewPhoto(event)">
+              <img class="photo-preview" id="photo-preview" alt="">
+              <span class="icon" id="photo-icon">📷</span>
+              <p id="photo-text">Ajouter une photo</p>
+            </label>
+          </div>
+          <button class="btn-submit" onclick="saveEntry()">✅ Enregistrer la sortie</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="view" id="view-stats">
+      <div class="stats-grid" id="stats-content"></div>
+    </div>
+
   </div>
 </div>
 
-<!-- TABS -->
-<div class="tabs">
-  <button class="tab-btn active" onclick="switchView('journal')" id="tab-journal">
-    <span>📖</span>Journal
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav">
+  <button class="mob-nav-btn active" onclick="switchView('journal',this)" id="mnav-journal">
+    <span class="nav-icon">📖</span><span class="nav-label">Journal</span>
   </button>
-  <button class="tab-btn" onclick="switchView('ajouter')" id="tab-ajouter">
-    <span>➕</span>Ajouter
+  <button class="mob-nav-btn" onclick="switchView('ajouter',this)" id="mnav-ajouter">
+    <span class="nav-icon">➕</span><span class="nav-label">Ajouter</span>
   </button>
-  <button class="tab-btn" onclick="switchView('stats')" id="tab-stats">
-    <span>📊</span>Stats
+  <button class="mob-nav-btn" onclick="switchView('stats',this)" id="mnav-stats">
+    <span class="nav-icon">📊</span><span class="nav-label">Stats</span>
   </button>
-</div>
+</nav>
 
-<!-- MAIN -->
-<div class="main">
-
-  <!-- VUE JOURNAL -->
-  <div class="view active" id="view-journal">
-    <p class="section-title">
-      <small>Mes sorties</small>
-      Journal de pêche
-    </p>
-
-    <div class="search-box">
-      <input type="text" placeholder="Rechercher espèce, lieu…" id="search-input" oninput="renderJournal()">
-    </div>
-
-    <div class="journal-filters">
-      <button class="filter-pill active" onclick="setFilter('tous', this)">Toutes</button>
-      <button class="filter-pill" onclick="setFilter('Carpe', this)">🐟 Carpe</button>
-      <button class="filter-pill" onclick="setFilter('Brochet', this)">🦈 Brochet</button>
-      <button class="filter-pill" onclick="setFilter('Truite', this)">🐠 Truite</button>
-      <button class="filter-pill" onclick="setFilter('Sandre', this)">🐡 Sandre</button>
-      <button class="filter-pill" onclick="setFilter('Perche', this)">Perche</button>
-    </div>
-
-    <div id="journal-list"></div>
-  </div>
-
-  <!-- VUE AJOUTER -->
-  <div class="view" id="view-ajouter">
-    <p class="section-title">
-      <small>Nouvelle entrée</small>
-      Ajouter une prise
-    </p>
-
-    <div class="form-group">
-      <label class="form-label">📅 Date & Heure</label>
-      <input type="datetime-local" class="form-input" id="f-date">
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">🐟 Espèce</label>
-      <select class="form-select" id="f-espece">
-        <option value="">— Sélectionner —</option>
-        <option>Carpe</option>
-        <option>Brochet</option>
-        <option>Truite fario</option>
-        <option>Truite arc-en-ciel</option>
-        <option>Sandre</option>
-        <option>Perche</option>
-        <option>Gardon</option>
-        <option>Rotengle</option>
-        <option>Tanche</option>
-        <option>Anguille</option>
-        <option>Black-bass</option>
-        <option>Silure</option>
-        <option>Barbeau</option>
-        <option>Chevesne</option>
-        <option>Ablette</option>
-        <option>Autre</option>
-      </select>
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">📏 Taille (cm)</label>
-        <input type="number" class="form-input" id="f-taille" placeholder="ex. 45" min="0" max="300">
-      </div>
-      <div class="form-group">
-        <label class="form-label">⚖️ Poids (g)</label>
-        <input type="number" class="form-input" id="f-poids" placeholder="ex. 1200" min="0">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">📍 Lieu</label>
-      <input type="text" class="form-input" id="f-lieu" placeholder="Étang, rivière, lac…">
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">🎣 Technique</label>
-      <select class="form-select" id="f-technique">
-        <option value="">— Technique —</option>
-        <option>Carpe — Cheveu</option>
-        <option>Lancer — Cuillère</option>
-        <option>Lancer — Leurre souple</option>
-        <option>Lancer — Popper</option>
-        <option>Mouche sèche</option>
-        <option>Mouche noyée</option>
-        <option>Toc / Vairon</option>
-        <option>Feeder</option>
-        <option>Bolognaise</option>
-        <option>Pêche au coup</option>
-        <option>Pêche au posé</option>
-        <option>Pêche au vif</option>
-        <option>Autre</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">🌤 Météo</label>
-      <div class="meteo-btns" id="meteo-btns">
-        <button class="meteo-btn" onclick="toggleMeteo(this, '☀️ Soleil')">☀️ Soleil</button>
-        <button class="meteo-btn" onclick="toggleMeteo(this, '⛅ Nuageux')">⛅ Nuageux</button>
-        <button class="meteo-btn" onclick="toggleMeteo(this, '🌧 Pluie')">🌧 Pluie</button>
-        <button class="meteo-btn" onclick="toggleMeteo(this, '💨 Vent')">💨 Vent</button>
-        <button class="meteo-btn" onclick="toggleMeteo(this, '🌫 Brume')">🌫 Brume</button>
-        <button class="meteo-btn" onclick="toggleMeteo(this, '❄️ Froid')">❄️ Froid</button>
-      </div>
-    </div>
-
-    <div class="form-row-3">
-      <div class="form-group">
-        <label class="form-label">🌡 Temp. air (°C)</label>
-        <input type="number" class="form-input" id="f-temp-air" placeholder="18">
-      </div>
-      <div class="form-group">
-        <label class="form-label">💧 Temp. eau</label>
-        <input type="number" class="form-input" id="f-temp-eau" placeholder="14">
-      </div>
-      <div class="form-group">
-        <label class="form-label">🌙 Lune</label>
-        <select class="form-select" id="f-lune">
-          <option value="">—</option>
-          <option>🌑 NL</option>
-          <option>🌒 CC</option>
-          <option>🌓 PQ</option>
-          <option>🌔 GC</option>
-          <option>🌕 PL</option>
-          <option>🌖 GD</option>
-          <option>🌗 DQ</option>
-          <option>🌘 CD</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">⭐ Note de la sortie</label>
-      <div class="stars-input" id="stars-input">
-        <button class="star-btn" onclick="setStar(1)">⭐</button>
-        <button class="star-btn" onclick="setStar(2)">⭐</button>
-        <button class="star-btn" onclick="setStar(3)">⭐</button>
-        <button class="star-btn" onclick="setStar(4)">⭐</button>
-        <button class="star-btn" onclick="setStar(5)">⭐</button>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">🏆 Trophée (prise exceptionnelle ?)</label>
-      <div class="meteo-btns">
-        <button class="meteo-btn" id="btn-trophy" onclick="toggleTrophy(this)">🏆 Marquer comme trophée</button>
-        <button class="meteo-btn" id="btn-relache" onclick="toggleRelache(this)">↩️ Remise à l'eau</button>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">📝 Notes & Observations</label>
-      <textarea class="form-textarea" id="f-notes" placeholder="Appâts utilisés, conditions, anecdotes…"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">📸 Photo</label>
-      <label class="photo-upload" for="f-photo">
-        <input type="file" id="f-photo" accept="image/*" onchange="previewPhoto(event)">
-        <img class="photo-preview" id="photo-preview" alt="Photo">
-        <span class="icon" id="photo-icon">📷</span>
-        <p id="photo-text">Ajouter une photo</p>
-      </label>
-    </div>
-
-    <button class="btn-submit" onclick="saveEntry()">✅ Enregistrer la sortie</button>
-  </div>
-
-  <!-- VUE STATS -->
-  <div class="view" id="view-stats">
-    <p class="section-title">
-      <small>Vue d'ensemble</small>
-      Statistiques
-    </p>
-    <div id="stats-content"></div>
-  </div>
-
-</div>
-
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── STATE ──────────────────────────────────────────────────────────────────
-let entries = JSON.parse(localStorage.getItem('peche-entries') || '[]');
-let currentFilter = 'tous';
-let currentStars = 0;
-let selectedMeteo = [];
-let isTrophy = false;
-let isRelache = false;
-let photoData = null;
+let entries = JSON.parse(localStorage.getItem('peche-entries')||'[]');
+let currentFilter='tous', currentStars=0, selectedMeteo=[], isTrophy=false, isRelache=false, photoData=null;
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
-function init() {
-  // Set default datetime
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  document.getElementById('f-date').value = now.toISOString().slice(0, 16);
-  
-  renderJournal();
-  updateStats();
-  updateHeaderStats();
+const topbarTitles = {
+  journal:['Mes sorties','Journal de pêche'],
+  ajouter:['Nouvelle entrée','Ajouter une prise'],
+  stats:["Vue d'ensemble",'Statistiques']
+};
+
+function init(){
+  const now=new Date(); now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+  document.getElementById('f-date').value=now.toISOString().slice(0,16);
+  renderJournal(); updateStats(); updateAllStats();
 }
 
-// ─── VIEW SWITCHING ──────────────────────────────────────────────────────────
-function switchView(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-  document.getElementById('tab-' + name).classList.add('active');
-  if (name === 'stats') updateStats();
+function switchView(name, btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.mob-nav-btn').forEach(b=>b.classList.remove('active'));
+  // sidebar
+  document.querySelectorAll('.nav-item').forEach(b=>{ if(b.textContent.trim().toLowerCase().includes(name==='ajouter'?'ajouter':name==='stats'?'stat':'journal')) b.classList.add('active'); });
+  // mobile nav
+  const mn=document.getElementById('mnav-'+name); if(mn) mn.classList.add('active');
+  const [sub,main]=topbarTitles[name];
+  document.getElementById('topbar-title').innerHTML=`<small>${sub}</small>${main}`;
+  if(name==='stats') updateStats();
 }
 
-// ─── FILTER ──────────────────────────────────────────────────────────────────
-function setFilter(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
   btn.classList.add('active');
   renderJournal();
 }
 
-// ─── STARS ───────────────────────────────────────────────────────────────────
-function setStar(n) {
-  currentStars = n;
-  document.querySelectorAll('.star-btn').forEach((btn, i) => {
-    btn.classList.toggle('active', i < n);
-  });
+function setStar(n){
+  currentStars=n;
+  document.querySelectorAll('.star-btn').forEach((b,i)=>b.classList.toggle('active',i<n));
 }
 
-// ─── METEO ───────────────────────────────────────────────────────────────────
-function toggleMeteo(btn, val) {
+function toggleMeteo(btn,val){
   btn.classList.toggle('selected');
-  if (selectedMeteo.includes(val)) {
-    selectedMeteo = selectedMeteo.filter(v => v !== val);
-  } else {
-    selectedMeteo.push(val);
-  }
+  selectedMeteo.includes(val)?selectedMeteo=selectedMeteo.filter(v=>v!==val):selectedMeteo.push(val);
 }
+function toggleTrophy(btn){isTrophy=!isTrophy;btn.classList.toggle('selected',isTrophy);}
+function toggleRelache(btn){isRelache=!isRelache;btn.classList.toggle('selected',isRelache);}
 
-// ─── TROPHY / RELÂCHE ────────────────────────────────────────────────────────
-function toggleTrophy(btn) {
-  isTrophy = !isTrophy;
-  btn.classList.toggle('selected', isTrophy);
-}
-function toggleRelache(btn) {
-  isRelache = !isRelache;
-  btn.classList.toggle('selected', isRelache);
-}
-
-// ─── PHOTO ───────────────────────────────────────────────────────────────────
-function previewPhoto(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(ev) {
-    photoData = ev.target.result;
-    document.getElementById('photo-preview').style.display = 'block';
-    document.getElementById('photo-preview').src = photoData;
-    document.getElementById('photo-icon').style.display = 'none';
-    document.getElementById('photo-text').textContent = '✅ Photo ajoutée';
+function previewPhoto(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    photoData=ev.target.result;
+    document.getElementById('photo-preview').style.display='block';
+    document.getElementById('photo-preview').src=photoData;
+    document.getElementById('photo-icon').style.display='none';
+    document.getElementById('photo-text').textContent='✅ Photo ajoutée';
   };
   reader.readAsDataURL(file);
 }
 
-// ─── SAVE ENTRY ──────────────────────────────────────────────────────────────
-function saveEntry() {
-  const espece = document.getElementById('f-espece').value;
-  if (!espece) { showToast('⚠️ Sélectionne une espèce !'); return; }
-
-  const entry = {
-    id: Date.now(),
-    date: document.getElementById('f-date').value,
-    espece,
-    taille: document.getElementById('f-taille').value || null,
-    poids: document.getElementById('f-poids').value || null,
-    lieu: document.getElementById('f-lieu').value,
-    technique: document.getElementById('f-technique').value,
-    meteo: [...selectedMeteo],
-    tempAir: document.getElementById('f-temp-air').value || null,
-    tempEau: document.getElementById('f-temp-eau').value || null,
-    lune: document.getElementById('f-lune').value,
-    stars: currentStars,
-    trophy: isTrophy,
-    relache: isRelache,
-    notes: document.getElementById('f-notes').value,
-    photo: photoData
+function saveEntry(){
+  const espece=document.getElementById('f-espece').value;
+  if(!espece){showToast('⚠️ Sélectionne une espèce !');return;}
+  const entry={
+    id:Date.now(), date:document.getElementById('f-date').value, espece,
+    taille:document.getElementById('f-taille').value||null,
+    poids:document.getElementById('f-poids').value||null,
+    lieu:document.getElementById('f-lieu').value,
+    technique:document.getElementById('f-technique').value,
+    meteo:[...selectedMeteo],
+    tempAir:document.getElementById('f-temp-air').value||null,
+    tempEau:document.getElementById('f-temp-eau').value||null,
+    lune:document.getElementById('f-lune').value,
+    stars:currentStars, trophy:isTrophy, relache:isRelache,
+    notes:document.getElementById('f-notes').value, photo:photoData
   };
-
   entries.unshift(entry);
-  localStorage.setItem('peche-entries', JSON.stringify(entries));
-
-  resetForm();
-  updateHeaderStats();
+  localStorage.setItem('peche-entries',JSON.stringify(entries));
+  resetForm(); updateAllStats();
   showToast('🎣 Sortie enregistrée !');
-  switchView('journal');
-  renderJournal();
+  switchView('journal',null); renderJournal();
 }
 
-// ─── RESET FORM ──────────────────────────────────────────────────────────────
-function resetForm() {
-  document.getElementById('f-espece').value = '';
-  document.getElementById('f-taille').value = '';
-  document.getElementById('f-poids').value = '';
-  document.getElementById('f-lieu').value = '';
-  document.getElementById('f-technique').value = '';
-  document.getElementById('f-temp-air').value = '';
-  document.getElementById('f-temp-eau').value = '';
-  document.getElementById('f-lune').value = '';
-  document.getElementById('f-notes').value = '';
-  document.querySelectorAll('.meteo-btn').forEach(b => b.classList.remove('selected'));
-  document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+function resetForm(){
+  ['f-espece','f-taille','f-poids','f-lieu','f-technique','f-temp-air','f-temp-eau','f-lune','f-notes']
+    .forEach(id=>document.getElementById(id).value='');
+  document.querySelectorAll('.meteo-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.star-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('btn-trophy').classList.remove('selected');
   document.getElementById('btn-relache').classList.remove('selected');
-  document.getElementById('photo-preview').style.display = 'none';
-  document.getElementById('photo-icon').style.display = 'block';
-  document.getElementById('photo-text').textContent = 'Ajouter une photo';
-  selectedMeteo = [];
-  currentStars = 0;
-  isTrophy = false;
-  isRelache = false;
-  photoData = null;
-
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  document.getElementById('f-date').value = now.toISOString().slice(0, 16);
+  document.getElementById('photo-preview').style.display='none';
+  document.getElementById('photo-icon').style.display='block';
+  document.getElementById('photo-text').textContent='Ajouter une photo';
+  selectedMeteo=[];currentStars=0;isTrophy=false;isRelache=false;photoData=null;
+  const now=new Date(); now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+  document.getElementById('f-date').value=now.toISOString().slice(0,16);
 }
 
-// ─── DELETE ENTRY ─────────────────────────────────────────────────────────────
-function deleteEntry(id, e) {
-  e.stopPropagation();
-  if (!confirm('Supprimer cette entrée ?')) return;
-  entries = entries.filter(e => e.id !== id);
-  localStorage.setItem('peche-entries', JSON.stringify(entries));
-  renderJournal();
-  updateHeaderStats();
+function deleteEntry(id){
+  if(!confirm('Supprimer cette entrée ?')) return;
+  entries=entries.filter(e=>e.id!==id);
+  localStorage.setItem('peche-entries',JSON.stringify(entries));
+  renderJournal(); updateAllStats();
   showToast('🗑 Entrée supprimée');
 }
 
-// ─── RENDER JOURNAL ──────────────────────────────────────────────────────────
-function renderJournal() {
-  const search = document.getElementById('search-input').value.toLowerCase();
-  let filtered = entries.filter(e => {
-    const matchFilter = currentFilter === 'tous' || e.espece.includes(currentFilter);
-    const matchSearch = !search || e.espece.toLowerCase().includes(search) || (e.lieu && e.lieu.toLowerCase().includes(search));
-    return matchFilter && matchSearch;
+function renderJournal(){
+  const search=document.getElementById('search-input').value.toLowerCase();
+  let filtered=entries.filter(e=>{
+    if(currentFilter==='trophy') return e.trophy;
+    const mF=currentFilter==='tous'||e.espece.includes(currentFilter);
+    const mS=!search||e.espece.toLowerCase().includes(search)||(e.lieu&&e.lieu.toLowerCase().includes(search));
+    return mF&&mS;
   });
 
-  const list = document.getElementById('journal-list');
-  if (filtered.length === 0) {
-    list.innerHTML = `<div class="empty-state"><span class="icon">🎣</span><p>Aucune sortie enregistrée.<br>Ajoutez votre première prise !</p></div>`;
+  const list=document.getElementById('journal-list');
+  if(!filtered.length){
+    list.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><span class="icon">🎣</span><p>Aucune sortie enregistrée.<br>Ajoutez votre première prise !</p></div>`;
     return;
   }
 
-  list.innerHTML = filtered.map((e, idx) => {
-    const date = e.date ? new Date(e.date).toLocaleDateString('fr-FR', {day:'numeric', month:'short', year:'numeric'}) : '';
-    const heure = e.date ? new Date(e.date).toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'}) : '';
-    const stars = e.stars ? '⭐'.repeat(e.stars) : '';
-    const tags = [];
-    if (e.technique) tags.push(e.technique);
-    if (e.relache) tags.push('↩️ Remis à l\'eau');
+  const isMobile=window.innerWidth<768;
+
+  list.innerHTML=filtered.map((e,idx)=>{
+    const date=e.date?new Date(e.date).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}):'';
+    const heure=e.date?new Date(e.date).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'';
+    const stars=e.stars?'⭐'.repeat(e.stars):'';
+    const tags=[]; if(e.technique)tags.push(e.technique); if(e.relache)tags.push("↩️ Remis à l'eau");
     return `
-      <div class="entry-card ${e.trophy ? 'trophy' : ''}" style="animation-delay:${idx*0.04}s">
-        <button class="btn-delete" onclick="deleteEntry(${e.id}, event)">🗑</button>
-        <div class="entry-card-header">
-          <div>
-            <span class="entry-species">${e.espece}</span>
-            ${e.trophy ? '<span class="photo-badge">🏆 Trophée</span>' : ''}
+      <div class="card-wrapper" style="animation-delay:${idx*0.04}s">
+        ${isMobile?`<div class="card-delete-bg" onclick="deleteEntry(${e.id})">🗑<span>Supprimer</span></div>`:''}
+        <div class="entry-card ${e.trophy?'trophy':''}" data-id="${e.id}">
+          <button class="btn-delete-desktop" onclick="deleteEntry(${e.id})">🗑 Supprimer</button>
+          <div class="entry-card-header">
+            <div>
+              <span class="entry-species">${e.espece}</span>
+              ${e.trophy?'<span class="photo-badge">🏆 Trophée</span>':''}
+            </div>
+            <div class="entry-date">${date}<br>${heure}</div>
           </div>
-          <div class="entry-date">${date}<br>${heure}</div>
+          <div class="entry-meta">
+            ${e.taille?`<div class="entry-meta-item"><span>📏</span>${e.taille} cm</div>`:''}
+            ${e.poids?`<div class="entry-meta-item"><span>⚖️</span>${formatPoids(e.poids)}</div>`:''}
+            ${e.lieu?`<div class="entry-meta-item"><span>📍</span>${e.lieu}</div>`:''}
+            ${e.meteo&&e.meteo.length?`<div class="entry-meta-item">${e.meteo.join(' ')}</div>`:''}
+          </div>
+          ${stars?`<div class="entry-stars">${stars}</div>`:''}
+          ${tags.length?`<div class="entry-tags">${tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>`:''}
+          ${e.notes?`<div class="entry-notes">"${e.notes.slice(0,100)}${e.notes.length>100?'…':''}"</div>`:''}
+          ${e.photo?`<div style="margin-top:10px"><img src="${e.photo}" style="width:100%;height:130px;object-fit:cover;border-radius:10px"></div>`:''}
         </div>
-        <div class="entry-meta">
-          ${e.taille ? `<div class="entry-meta-item"><span>📏</span>${e.taille} cm</div>` : ''}
-          ${e.poids ? `<div class="entry-meta-item"><span>⚖️</span>${formatPoids(e.poids)}</div>` : ''}
-          ${e.lieu ? `<div class="entry-meta-item"><span>📍</span>${e.lieu}</div>` : ''}
-          ${e.meteo && e.meteo.length ? `<div class="entry-meta-item">${e.meteo.join(' ')}</div>` : ''}
-        </div>
-        ${stars ? `<div class="entry-stars">${stars}</div>` : ''}
-        ${tags.length ? `<div class="entry-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>` : ''}
-        ${e.notes ? `<div class="entry-notes">"${e.notes.slice(0,80)}${e.notes.length>80?'…':''}"</div>` : ''}
-        ${e.photo ? `<div style="margin-top:10px"><img src="${e.photo}" style="width:100%;height:120px;object-fit:cover;border-radius:10px"></div>` : ''}
-      </div>
-    `;
+      </div>`;
   }).join('');
-}
 
-function formatPoids(g) {
-  return g >= 1000 ? (g/1000).toFixed(2).replace(/\.?0+$/, '') + ' kg' : g + ' g';
-}
-
-// ─── UPDATE HEADER STATS ─────────────────────────────────────────────────────
-function updateHeaderStats() {
-  document.getElementById('stat-total').textContent = entries.length;
-  document.getElementById('stat-poissons').textContent = entries.length;
-  
-  const records = entries.filter(e => e.poids);
-  if (records.length) {
-    const max = Math.max(...records.map(e => parseInt(e.poids)));
-    document.getElementById('stat-record').textContent = formatPoids(max);
-  } else {
-    document.getElementById('stat-record').textContent = '—';
+  // Swipe (mobile)
+  if(isMobile){
+    document.querySelectorAll('.entry-card').forEach(card=>{
+      let sx=0,cx=0,d=false;
+      card.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;d=true;card.classList.add('swiping');},{passive:true});
+      card.addEventListener('touchmove',e=>{
+        if(!d)return; cx=Math.min(0,Math.max(e.touches[0].clientX-sx,-120));
+        card.style.transform=`translateX(${cx}px)`;
+      },{passive:true});
+      card.addEventListener('touchend',()=>{
+        d=false;card.classList.remove('swiping');
+        card.style.transform=cx<-80?'translateX(-90px)':'';cx=0;
+      });
+    });
   }
 }
 
-// ─── STATS VIEW ──────────────────────────────────────────────────────────────
-function updateStats() {
-  const el = document.getElementById('stats-content');
-  if (entries.length === 0) {
-    el.innerHTML = `<div class="empty-state"><span class="icon">📊</span><p>Pas encore de données.<br>Enregistrez vos premières sorties !</p></div>`;
+function formatPoids(g){ return g>=1000?(g/1000).toFixed(2).replace(/\.?0+$/,'')+' kg':g+' g'; }
+
+function updateAllStats(){
+  const total=entries.length;
+  const records=entries.filter(e=>e.poids);
+  const rec=records.length?formatPoids(Math.max(...records.map(e=>parseInt(e.poids)))):'—';
+  const species=new Set(entries.map(e=>e.espece)).size;
+  ['m-total','m-poissons'].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=i===0?total:species;});
+  const mr=document.getElementById('m-record');if(mr)mr.textContent=rec;
+  const st=document.getElementById('s-total');if(st)st.textContent=total;
+  const sr=document.getElementById('s-record');if(sr)sr.textContent=rec;
+}
+
+function updateStats(){
+  const el=document.getElementById('stats-content');
+  if(!entries.length){
+    el.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><span class="icon">📊</span><p>Pas encore de données.</p></div>`;
     return;
   }
+  const sp={};entries.forEach(e=>{sp[e.espece]=(sp[e.espece]||0)+1;});
+  const sorted=Object.entries(sp).sort((a,b)=>b[1]-a[1]);
+  const maxC=sorted[0][1];
+  const wP=[...entries].filter(e=>e.poids).sort((a,b)=>b.poids-a.poids);
+  const wT=[...entries].filter(e=>e.taille).sort((a,b)=>b.taille-a.taille);
+  const lx={};entries.forEach(e=>{if(e.lieu)lx[e.lieu]=(lx[e.lieu]||0)+1;});
+  const tL=Object.entries(lx).sort((a,b)=>b[1]-a[1])[0];
 
-  // Species count
-  const species = {};
-  entries.forEach(e => { species[e.espece] = (species[e.espece] || 0) + 1; });
-  const sorted = Object.entries(species).sort((a,b) => b[1]-a[1]);
-  const maxCount = sorted[0][1];
-
-  // Records
-  const withPoids = entries.filter(e => e.poids).sort((a,b) => b.poids - a.poids);
-  const withTaille = entries.filter(e => e.taille).sort((a,b) => b.taille - a.taille);
-
-  // Trophies
-  const trophies = entries.filter(e => e.trophy);
-
-  // Lieux
-  const lieux = {};
-  entries.forEach(e => { if (e.lieu) lieux[e.lieu] = (lieux[e.lieu] || 0) + 1; });
-  const topLieu = Object.entries(lieux).sort((a,b) => b[1]-a[1])[0];
-
-  el.innerHTML = `
+  el.innerHTML=`
     <div class="stat-card">
       <div class="stat-card-title">🐟 Espèces capturées</div>
-      ${sorted.map(([sp, count]) => `
-        <div class="species-bar">
-          <span class="species-name">${sp}</span>
-          <div class="bar-track"><div class="bar-fill" style="width:${(count/maxCount*100)}%"></div></div>
-          <span class="bar-count">${count}</span>
-        </div>
-      `).join('')}
+      ${sorted.map(([s,c])=>`<div class="species-bar"><span class="species-name">${s}</span><div class="bar-track"><div class="bar-fill" style="width:${c/maxC*100}%"></div></div><span class="bar-count">${c}</span></div>`).join('')}
     </div>
-
-    ${withPoids.length || withTaille.length ? `
+    ${wP.length||wT.length?`
     <div class="stat-card">
-      <div class="stat-card-title">🏆 Records personnels</div>
-      ${withPoids[0] ? `
-        <div class="record-item">
-          <span class="record-icon">⚖️</span>
-          <div class="record-info">
-            <div class="species">${withPoids[0].espece}</div>
-            <div class="detail">${withPoids[0].lieu || 'Lieu non précisé'} — ${withPoids[0].date ? new Date(withPoids[0].date).toLocaleDateString('fr-FR') : ''}</div>
-          </div>
-          <span class="record-value">${formatPoids(withPoids[0].poids)}</span>
-        </div>
-      ` : ''}
-      ${withTaille[0] ? `
-        <div class="record-item">
-          <span class="record-icon">📏</span>
-          <div class="record-info">
-            <div class="species">${withTaille[0].espece}</div>
-            <div class="detail">${withTaille[0].lieu || 'Lieu non précisé'}</div>
-          </div>
-          <span class="record-value">${withTaille[0].taille} cm</span>
-        </div>
-      ` : ''}
-    </div>
-    ` : ''}
-
+      <div class="stat-card-title">🏆 Records</div>
+      ${wP[0]?`<div class="record-item"><span class="record-icon">⚖️</span><div class="record-info"><div class="species">${wP[0].espece}</div><div class="detail">${wP[0].lieu||'Lieu non précisé'}</div></div><span class="record-value">${formatPoids(wP[0].poids)}</span></div>`:''}
+      ${wT[0]?`<div class="record-item"><span class="record-icon">📏</span><div class="record-info"><div class="species">${wT[0].espece}</div><div class="detail">${wT[0].lieu||'Lieu non précisé'}</div></div><span class="record-value">${wT[0].taille} cm</span></div>`:''}
+    </div>`:''}
     <div class="stat-card">
       <div class="stat-card-title">📋 Résumé</div>
-      <div class="record-item">
-        <span class="record-icon">🎣</span>
-        <div class="record-info"><div class="species">Total sorties</div></div>
-        <span class="record-value">${entries.length}</span>
-      </div>
-      <div class="record-item">
-        <span class="record-icon">🏆</span>
-        <div class="record-info"><div class="species">Trophées</div></div>
-        <span class="record-value">${trophies.length}</span>
-      </div>
-      ${topLieu ? `
-      <div class="record-item">
-        <span class="record-icon">📍</span>
-        <div class="record-info">
-          <div class="species">Spot favori</div>
-          <div class="detail">${topLieu[1]} visite${topLieu[1]>1?'s':''}</div>
-        </div>
-        <span class="record-value" style="font-size:14px;max-width:100px;text-align:right">${topLieu[0]}</span>
-      </div>
-      ` : ''}
-      <div class="record-item">
-        <span class="record-icon">↩️</span>
-        <div class="record-info"><div class="species">Remises à l'eau</div></div>
-        <span class="record-value">${entries.filter(e=>e.relache).length}</span>
-      </div>
-    </div>
-  `;
+      <div class="record-item"><span class="record-icon">🎣</span><div class="record-info"><div class="species">Total sorties</div></div><span class="record-value">${entries.length}</span></div>
+      <div class="record-item"><span class="record-icon">🏆</span><div class="record-info"><div class="species">Trophées</div></div><span class="record-value">${entries.filter(e=>e.trophy).length}</span></div>
+      ${tL?`<div class="record-item"><span class="record-icon">📍</span><div class="record-info"><div class="species">Spot favori</div><div class="detail">${tL[1]} visite${tL[1]>1?'s':''}</div></div><span class="record-value" style="font-size:13px;max-width:110px;text-align:right">${tL[0]}</span></div>`:''}
+      <div class="record-item"><span class="record-icon">↩️</span><div class="record-info"><div class="species">Remises à l'eau</div></div><span class="record-value">${entries.filter(e=>e.relache).length}</span></div>
+    </div>`;
 }
 
-// ─── TOAST ───────────────────────────────────────────────────────────────────
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-// ─── START ───────────────────────────────────────────────────────────────────
+let rt;
+window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(renderJournal,200); });
+
 init();
 </script>
 </body>

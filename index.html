@@ -264,6 +264,40 @@ canvas.stat-chart{width:100%!important;height:100%!important;}
 /* ── PARTAGE FICHE ─── */
 .share-card-wrap{display:none;position:fixed;inset:0;z-index:500;background:rgba(10,22,40,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px;}
 .share-card-wrap.open{display:flex;}
+
+/* ── MODALE INFO ─── */
+.info-wrap{display:none;position:fixed;inset:0;z-index:500;background:rgba(10,22,40,0.65);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:24px;}
+.info-wrap.open{display:flex;}
+.info-modal{
+  background:white;border-radius:22px;padding:32px 28px 24px;
+  max-width:320px;width:100%;
+  box-shadow:0 20px 60px rgba(0,0,0,0.3);
+  text-align:center;
+  animation:popupUp 0.25s cubic-bezier(.34,1.4,.64,1) both;
+}
+body.dark .info-modal{background:#0f2147;color:#e0e8f4;}
+.info-modal .info-logo{font-size:52px;margin-bottom:12px;filter:drop-shadow(0 3px 10px rgba(232,96,154,0.4));}
+.info-modal h2{font-family:'Playfair Display',serif;font-size:20px;color:var(--eau-profonde);margin-bottom:4px;}
+body.dark .info-modal h2{color:#d0e0f8;}
+.info-modal .info-version{
+  display:inline-block;margin:10px auto;
+  padding:4px 14px;border-radius:20px;
+  background:linear-gradient(135deg,var(--eau-claire),var(--rose));
+  color:white;font-size:12px;font-weight:700;letter-spacing:1px;
+}
+.info-modal .info-divider{height:1px;background:#eee;margin:16px 0;}
+body.dark .info-modal .info-divider{background:#1a3060;}
+.info-modal .info-author{font-size:15px;font-weight:600;color:var(--texte);margin-bottom:4px;}
+body.dark .info-modal .info-author{color:#e0e8f4;}
+.info-modal .info-copy{font-size:12px;color:var(--gris);margin-bottom:20px;}
+.info-modal .info-desc{font-size:12px;color:var(--gris);font-style:italic;margin-bottom:20px;line-height:1.5;}
+.btn-info-close{
+  width:100%;padding:12px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--eau-claire),var(--rose));
+  color:white;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;
+  cursor:pointer;transition:opacity 0.15s;
+}
+.btn-info-close:hover{opacity:0.9;}
 .share-card{background:white;border-radius:20px;padding:28px 24px 20px;max-width:340px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
 .share-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
 .share-card-species{font-family:'Playfair Display',serif;font-size:22px;font-style:italic;color:var(--eau-profonde);}
@@ -393,6 +427,7 @@ canvas.stat-chart{width:100%!important;height:100%!important;}
     <button class="nav-item" onclick="exportData()"><span class="nav-icon">📤</span> Exporter</button>
     <button class="nav-item" onclick="document.getElementById('import-file').click()"><span class="nav-icon">📥</span> Importer</button>
     <button class="nav-item" onclick="toggleDarkMode()"><span class="nav-icon" id="dark-icon">🌙</span> <span id="dark-label">Mode sombre</span></button>
+    <button class="nav-item" onclick="openInfo()" style="opacity:0.75"><span class="nav-icon">ℹ️</span> À propos</button>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
   </nav>
 </aside>
@@ -405,6 +440,7 @@ canvas.stat-chart{width:100%!important;height:100%!important;}
       <button class="btn-secondary" onclick="toggleDarkMode()" id="dark-btn" title="Mode sombre">🌙</button>
       <button class="btn-secondary" onclick="exportData()">📤 Exporter</button>
       <button class="btn-secondary" onclick="document.getElementById('import-file').click()">📥 Importer</button>
+      <button class="btn-secondary" onclick="openInfo()" title="Informations" style="opacity:0.7">ℹ️</button>
       <button class="btn-primary" onclick="switchView('ajouter',null)">➕ Nouvelle prise</button>
     </div>
   </div>
@@ -618,7 +654,22 @@ canvas.stat-chart{width:100%!important;height:100%!important;}
       <button class="menu-popup-small" onclick="exportData();closeMenu()">📤 Exporter</button>
       <button class="menu-popup-small" onclick="document.getElementById('import-file').click();closeMenu()">📥 Importer</button>
       <button class="menu-popup-small" onclick="toggleDarkMode();closeMenu()" style="grid-column:1/-1">🌙 Mode sombre</button>
+      <button class="menu-popup-small" onclick="openInfo();closeMenu()" style="grid-column:1/-1;opacity:0.75">ℹ️ À propos</button>
     </div>
+  </div>
+</div>
+
+<!-- MODALE À PROPOS -->
+<div class="info-wrap" id="info-wrap" onclick="closeInfoOnOverlay(event)">
+  <div class="info-modal">
+    <div class="info-logo">🎣</div>
+    <h2>Carnet de Pêche</h2>
+    <span class="info-version">Version V 0.0.1</span>
+    <div class="info-desc">Application personnelle de suivi<br>des sorties et prises de pêche</div>
+    <div class="info-divider"></div>
+    <div class="info-author">Bruno LARIVE</div>
+    <div class="info-copy">© Copyright 2026 — Tous droits réservés</div>
+    <button class="btn-info-close" onclick="closeInfo()">Fermer</button>
   </div>
 </div>
 
@@ -1629,6 +1680,11 @@ function applyUpdate() {
     window.location.reload();
   }
 }
+
+// ── MODALE À PROPOS ──
+function openInfo(){ document.getElementById('info-wrap').classList.add('open'); }
+function closeInfo(){ document.getElementById('info-wrap').classList.remove('open'); }
+function closeInfoOnOverlay(e){ if(e.target===document.getElementById('info-wrap')) closeInfo(); }
 
 init();
 </script>

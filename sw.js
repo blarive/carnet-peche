@@ -1,26 +1,28 @@
-// ─── Service Worker — Carnet de Pêche ───────────────────
-// La version est envoyée dynamiquement par index.html
-// Pas besoin de modifier ce fichier à chaque déploiement
+// ─── Service Worker — Carnet de Pêche V1.0 ──────────────
+// Stratégie simplifiée et fiable :
+// - index.html toujours depuis le réseau (jamais en cache)
+// - Assets statiques (fonts, leaflet) en cache long terme
+// - Détection de version côté app → purge + reload auto
 
-let CACHE_NAME = 'carnet-peche-auto';
+const CACHE_NAME = 'carnet-peche-static-v1';
 
-const SHELL = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
+const STATIC_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js',
+  './icon-192.png',
+  './icon-512.png',
+  './manifest.json',
 ];
 
 // ─── INSTALL ─────────────────────────────────────────────
 self.addEventListener('install', event => {
+  // Activation immédiate sans attendre la fermeture des onglets
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache =>
-      Promise.allSettled(SHELL.map(url => cache.add(url).catch(() => {})))
-    ).then(() => self.skipWaiting())
+      Promise.allSettled(STATIC_ASSETS.map(url => cache.add(url).catch(() => {})))
+    )
   );
 });
 
@@ -30,11 +32,8 @@ self.addEventListener('activate', event => {
     caches.keys().then(keys =>
       Promise.all(
         keys
-          .filter(k => k.startsWith('carnet-peche-') && k !== CACHE_NAME)
-          .map(k => {
-            console.log('[SW] Suppression ancien cache :', k);
-            return caches.delete(k);
-          })
+          .filter(k => k !== CACHE_NAME)
+          .map(k => caches.delete(k))
       )
     ).then(() => self.clients.claim())
   );
@@ -43,28 +42,35 @@ self.addEventListener('activate', event => {
 // ─── FETCH ───────────────────────────────────────────────
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
-  if (event.request.method !== 'GET') return;
-  if (url.hostname === 'nominatim.openstreetmap.org') return;
-  if (url.hostname === 'tile.openstreetmap.org') return;
 
-  // index.html et sw.js → Network First (toujours la dernière version)
-  if (url.pathname.endsWith('/') || url.pathname.endsWith('index.html') || url.pathname.endsWith('sw.js')) {
+  if (event.request.method !== 'GET') return;
+
+  // API externe (GPS, tuiles carte) → réseau direct, pas de cache
+  if (
+    url.hostname === 'nominatim.openstreetmap.org' ||
+    url.hostname.includes('tile.openstreetmap.org')
+  ) return;
+
+  // index.html et sw.js → TOUJOURS réseau, jamais de cache
+  // C'est la clé : on ne met JAMAIS index.html en cache
+  if (
+    url.pathname === '/' ||
+    url.pathname.endsWith('/index.html') ||
+    url.pathname.endsWith('/sw.js')
+  ) {
     event.respondWith(
-      fetch(event.request).then(response => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
-        return response;
-      }).catch(() => caches.match(event.request))
+      fetch(event.request, { cache: 'no-store' })
+        .catch(() => caches.match('./index.html'))
     );
     return;
   }
 
-  // Autres fichiers → Cache First
+  // Assets statiques → Cache First (fonts, leaflet, icônes)
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached;
       return fetch(event.request).then(response => {
-        if (response.ok) {
+        if (response && response.ok) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
         }
@@ -75,24 +81,6 @@ self.addEventListener('fetch', event => {
 });
 
 // ─── MESSAGE ─────────────────────────────────────────────
-// Reçoit la version depuis index.html — purge automatique si nouvelle version
 self.addEventListener('message', event => {
-  if (event.data && event.data.type === 'SET_VERSION') {
-    const newCache = `carnet-peche-${event.data.version}`;
-    if (newCache !== CACHE_NAME) {
-      const oldCache = CACHE_NAME;
-      CACHE_NAME = newCache;
-      caches.delete(oldCache).then(() => {
-        console.log('[SW] Nouveau cache activé :', newCache);
-        caches.open(CACHE_NAME).then(cache =>
-          Promise.allSettled(SHELL.map(url => cache.add(url).catch(() => {})))
-        );
-      });
-      // Notifie tous les onglets
-      self.clients.matchAll().then(clients =>
-        clients.forEach(c => c.postMessage({ type: 'UPDATE_READY' }))
-      );
-    }
-  }
   if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });

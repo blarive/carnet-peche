@@ -183,6 +183,33 @@ body.dark .prise-val{color:#8a96b0;}
 .prise-notes{font-size:11px;color:#888;font-style:italic;margin-top:4px;grid-column:1/-1;}
 .prise-del-btn{background:none;border:none;color:var(--gris);font-size:18px;cursor:pointer;padding:2px 4px;flex-shrink:0;transition:color 0.15s;}
 .prise-del-btn:hover{color:var(--rouge);}
+.prise-edit-btn{background:none;border:none;color:var(--gris);font-size:18px;cursor:pointer;padding:2px 4px;flex-shrink:0;transition:color 0.15s;}
+.prise-edit-btn:hover{color:var(--eau-claire);}
+
+/* ── MODALE ÉDITION PRISE ─── */
+.edit-wrap{display:none;position:fixed;inset:0;z-index:600;background:rgba(10,22,40,0.72);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center;padding-bottom:0;}
+.edit-wrap.open{display:flex;}
+.edit-modal{
+  background:white;border-radius:22px 22px 0 0;
+  padding:20px 20px 32px;width:100%;max-width:560px;
+  box-shadow:0 -8px 40px rgba(0,0,0,0.2);
+  max-height:90vh;overflow-y:auto;
+  animation:slideUpModal 0.3s cubic-bezier(.2,.8,.3,1) both;
+}
+@keyframes slideUpModal{from{transform:translateY(100%)}to{transform:translateY(0)}}
+body.dark .edit-modal{background:#0f2147;color:#e0e8f4;}
+.edit-modal-handle{width:40px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 16px;}
+body.dark .edit-modal-handle{background:#2a4080;}
+.edit-modal h3{font-family:'Playfair Display',serif;font-size:18px;color:var(--eau-profonde);margin-bottom:16px;}
+body.dark .edit-modal h3{color:#d0e0f8;}
+
+/* ── PERSONNALISATION NOM ─── */
+.settings-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #f0f0f0;}
+body.dark .settings-row{border-color:#1a3060;}
+.settings-row:last-child{border-bottom:none;}
+.settings-label{flex:1;font-size:14px;font-weight:500;color:var(--texte);}
+body.dark .settings-label{color:#e0e8f4;}
+.settings-sub{font-size:11px;color:var(--gris);display:block;margin-top:2px;}
 
 /* Swipe mobile sur la carte sortie */
 .sortie-swipe-wrap{position:relative;border-radius:var(--radius);overflow:hidden;}
@@ -207,6 +234,9 @@ body.dark .prise-val{color:#8a96b0;}
 .meteo-btn{padding:8px 14px;border:1.5px solid #dde3f0;border-radius:20px;background:none;font-size:13px;cursor:pointer;transition:all 0.15s;color:var(--texte);font-family:'DM Sans',sans-serif;}
 .meteo-btn.selected{border-color:var(--eau-claire);background:var(--bleu-clair);color:var(--eau-claire);font-weight:600;}
 .meteo-btn.selected-rose{border-color:var(--rose);background:var(--rose-clair);color:var(--rose);font-weight:600;}
+body.dark .meteo-btn{color:white;border-color:#2a4080;}
+body.dark .meteo-btn.selected{background:rgba(46,109,180,0.3);color:#90c0ff;border-color:var(--eau-claire);}
+body.dark .meteo-btn.selected-rose{background:rgba(232,96,154,0.25);color:#ffaacc;border-color:var(--rose);}
 .btn-submit{width:100%;padding:14px;background:linear-gradient(135deg,var(--eau-claire) 0%,var(--rose) 100%);color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(46,109,180,0.25);transition:transform 0.15s;}
 .btn-submit:active{transform:scale(0.98);}
 .photo-upload{display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed #c8d8f0;border-radius:var(--radius);padding:20px 16px;cursor:pointer;background:#f8faff;transition:all 0.2s;width:100%;}
@@ -496,6 +526,7 @@ body.dark .menu-popup-item.active-view{background:#1e4080;border-color:var(--ros
     <div style="height:1px;background:rgba(255,255,255,0.1);margin:10px 4px"></div>
     <button class="nav-item" onclick="exportData()"><span class="nav-icon">📤</span> Exporter</button>
     <button class="nav-item" onclick="document.getElementById('import-file').click()"><span class="nav-icon">📥</span> Importer</button>
+    <button class="nav-item" onclick="switchView('parametres',this)"><span class="nav-icon">⚙️</span> Paramètres</button>
     <button class="nav-item" onclick="toggleDarkMode()"><span class="nav-icon" id="dark-icon">🌙</span> <span id="dark-label">Mode sombre</span></button>
     <button class="nav-item" onclick="openInfo()" style="opacity:0.75"><span class="nav-icon">ℹ️</span> À propos</button>
     <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
@@ -704,6 +735,11 @@ body.dark .menu-popup-item.active-view{background:#1e4080;border-color:var(--ros
       <div id="rapport-content"></div>
     </div>
 
+    <!-- PARAMÈTRES -->
+    <div class="view" id="view-parametres">
+      <div id="parametres-content"></div>
+    </div>
+
   </div>
 </div>
 
@@ -742,6 +778,87 @@ body.dark .menu-popup-item.active-view{background:#1e4080;border-color:var(--ros
       <button class="menu-popup-small" onclick="document.getElementById('import-file').click();closeMenu()">📥 Importer</button>
       <button class="menu-popup-small" onclick="toggleDarkMode();closeMenu()" style="grid-column:1/-1">🌙 Mode sombre</button>
       <button class="menu-popup-small" onclick="openInfo();closeMenu()" style="grid-column:1/-1;opacity:0.75">ℹ️ À propos</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE ÉDITION PRISE -->
+<div class="edit-wrap" id="edit-wrap" onclick="closeEditOnOverlay(event)">
+  <div class="edit-modal">
+    <div class="edit-modal-handle"></div>
+    <h3>✏️ Modifier la prise</h3>
+    <input type="hidden" id="edit-id">
+    <div class="form-group">
+      <label class="form-label">🐟 Espèce</label>
+      <select class="form-select" id="edit-espece">
+        <option value="">— Sélectionner —</option>
+        <option>Carpe</option><option>Brochet</option><option>Truite fario</option>
+        <option>Truite arc-en-ciel</option><option>Sandre</option><option>Perche</option>
+        <option>Gardon</option><option>Rotengle</option><option>Tanche</option>
+        <option>Anguille</option><option>Black-bass</option><option>Silure</option>
+        <option>Barbeau</option><option>Chevesne</option><option>Ablette</option>
+        <option>Alose</option><option>Autre</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">📏 Taille (cm)</label>
+        <input type="number" class="form-input" id="edit-taille" placeholder="ex. 45">
+      </div>
+      <div class="form-group">
+        <label class="form-label">⚖️ Poids (kg)</label>
+        <input type="number" class="form-input" id="edit-poids" placeholder="ex. 1.2" step="0.001" min="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">🎣 Technique</label>
+      <select class="form-select" id="edit-technique">
+        <option value="">— Technique —</option>
+        <option>Carpe — Cheveu</option><option>Lancer — Cuillère</option>
+        <option>Lancer — Leurre souple</option><option>Lancer — Popper</option>
+        <option>Mouche sèche</option><option>Mouche noyée</option>
+        <option>Toc / Vairon</option><option>Feeder</option>
+        <option>Bolognaise</option><option>Pêche au coup</option>
+        <option>Pêche au posé</option><option>Pêche au vif</option><option>Autre</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">🪱 Appât</label>
+      <input type="text" class="form-input" id="edit-appat" placeholder="Appât utilisé…">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">📐 Profondeur (m)</label>
+        <input type="number" class="form-input" id="edit-profondeur" placeholder="ex. 3.5" step="0.1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">⭐ Note</label>
+        <select class="form-select" id="edit-stars">
+          <option value="0">— Aucune —</option>
+          <option value="1">⭐</option><option value="2">⭐⭐</option>
+          <option value="3">⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option>
+          <option value="5">⭐⭐⭐⭐⭐</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">🏅 Statut</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="edit-trophy" style="width:16px;height:16px;cursor:pointer"> 🏆 Trophée
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="edit-relache" style="width:16px;height:16px;cursor:pointer"> ↩️ Remis à l'eau
+        </label>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">📝 Notes</label>
+      <textarea class="form-textarea" id="edit-notes" placeholder="Notes, observations…"></textarea>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="btn-submit" onclick="saveEditEntry()" style="flex:1">💾 Enregistrer</button>
+      <button onclick="closeEdit()" style="flex:0 0 auto;padding:14px 20px;border:1.5px solid #ddd;border-radius:12px;background:none;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;color:var(--gris)">Annuler</button>
     </div>
   </div>
 </div>
@@ -793,10 +910,10 @@ body.dark .menu-popup-item.active-view{background:#1e4080;border-color:var(--ros
   <div class="info-modal">
     <div class="info-logo">🎣</div>
     <h2>Carnet de Pêche</h2>
-    <span class="info-version">Version V 0.0.1</span>
+    <span class="info-version">Version V 1.0</span>
     <div class="info-desc">Application personnelle de suivi<br>des sorties et prises de pêche</div>
     <div class="info-divider"></div>
-    <div class="info-author">Bruno LARIVE</div>
+    <div class="info-author" id="info-author-name">Bruno LARIVE</div>
     <div class="info-copy">© Copyright 2026 — Tous droits réservés</div>
     <button class="btn-info-close" onclick="closeInfo()">Fermer</button>
   </div>
@@ -840,7 +957,8 @@ const topbarTitles={
   stats:["Vue d'ensemble",'Statistiques'],
   spots:['Mes lieux','Spots & Carte'],
   appats:['Mes appâts','Carnet d\'appâts'],
-  rapport:['Bilan & Export','Rapport de saison']
+  rapport:['Bilan & Export','Rapport de saison'],
+  parametres:['Réglages','Paramètres']
 };
 
 // ════════════════════════════════════════════════════════
@@ -858,6 +976,9 @@ function init(){
   renderJournal(); updateStats(); updateAllStats();
   renderSpotsForm(); renderSpotsPage();
   renderAppatsForm();
+  // Charger le nom personnalisé
+  const authorEl=document.getElementById('info-author-name');
+  if(authorEl) authorEl.textContent=getPecheurNom();
 }
 
 // ════════════════════════════════════════════════════════
@@ -896,6 +1017,7 @@ function switchView(name){
   if(name==='spots'){ renderSpotsPage(); setTimeout(initMap,200); }
   if(name==='appats') renderAppatsPage();
   if(name==='rapport') renderRapportPage();
+  if(name==='parametres') renderParametresPage();
 }
 function setFilter(f,btn){
   currentFilter=f;
@@ -1147,6 +1269,7 @@ function renderJournal(){
             ${tags.length?`<div class="prise-badges" style="margin-top:4px">${tags.map(t=>`<span style="font-size:10px;background:var(--bleu-clair);color:var(--eau-claire);padding:2px 7px;border-radius:8px;font-weight:500">${t}</span>`).join('')}</div>`:''}
             ${e.notes?`<div class="prise-notes">"${e.notes.slice(0,80)}${e.notes.length>80?'…':''}"</div>`:''}
           </div>
+          <button class="prise-edit-btn" onclick="openEditEntry(${e.id})" title="Modifier cette prise">✏️</button>
           <button class="prise-del-btn" onclick="deleteEntry(${e.id})" title="Supprimer cette prise">🗑</button>
         </div>`;
     }).join('');
@@ -1891,6 +2014,122 @@ function copyShareText(){
 }
 
 // ════════════════════════════════════════════════════════
+//  ÉDITION D'UNE PRISE
+// ════════════════════════════════════════════════════════
+function openEditEntry(id){
+  const e=entries.find(x=>x.id===id); if(!e) return;
+  document.getElementById('edit-id').value=id;
+  document.getElementById('edit-espece').value=e.espece||'';
+  document.getElementById('edit-taille').value=e.taille||'';
+  document.getElementById('edit-poids').value=e.poids!=null?(e.poids>100?(e.poids/1000).toFixed(3):e.poids):'';
+  document.getElementById('edit-technique').value=e.technique||'';
+  document.getElementById('edit-appat').value=e.appat||'';
+  document.getElementById('edit-profondeur').value=e.profondeur||'';
+  document.getElementById('edit-stars').value=e.stars||0;
+  document.getElementById('edit-notes').value=e.notes||'';
+  document.getElementById('edit-trophy').checked=!!e.trophy;
+  document.getElementById('edit-relache').checked=!!e.relache;
+  document.getElementById('edit-wrap').classList.add('open');
+}
+function closeEdit(){ document.getElementById('edit-wrap').classList.remove('open'); }
+function closeEditOnOverlay(ev){ if(ev.target===document.getElementById('edit-wrap')) closeEdit(); }
+
+function saveEditEntry(){
+  const id=parseInt(document.getElementById('edit-id').value);
+  const idx=entries.findIndex(e=>e.id===id); if(idx===-1) return;
+  const poidsVal=document.getElementById('edit-poids').value;
+  entries[idx]={
+    ...entries[idx],
+    espece:document.getElementById('edit-espece').value||entries[idx].espece,
+    taille:document.getElementById('edit-taille').value||null,
+    poids:poidsVal?parseFloat(poidsVal):null,
+    technique:document.getElementById('edit-technique').value,
+    appat:document.getElementById('edit-appat').value,
+    profondeur:document.getElementById('edit-profondeur').value||null,
+    stars:parseInt(document.getElementById('edit-stars').value)||0,
+    notes:document.getElementById('edit-notes').value,
+    trophy:document.getElementById('edit-trophy').checked,
+    relache:document.getElementById('edit-relache').checked,
+  };
+  localStorage.setItem('peche-entries',JSON.stringify(entries));
+  closeEdit(); renderJournal(); updateAllStats();
+  showToast('✅ Prise modifiée !');
+}
+
+// ════════════════════════════════════════════════════════
+//  PARAMÈTRES — personnalisation du nom
+// ════════════════════════════════════════════════════════
+function getPecheurNom(){
+  return localStorage.getItem('pecheur-nom')||'Bruno LARIVE';
+}
+
+function renderParametresPage(){
+  const el=document.getElementById('parametres-content'); if(!el) return;
+  const nom=getPecheurNom();
+  el.innerHTML=`
+    <div class="stat-card" style="margin-bottom:14px">
+      <div class="stat-card-title">👤 Identité du pêcheur</div>
+      <div class="settings-row">
+        <div class="settings-label">Votre nom
+          <span class="settings-sub">Affiché dans les rapports et fiches de partage</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <input type="text" id="param-nom" class="form-input" value="${nom}" placeholder="Prénom NOM" style="flex:1">
+        <button onclick="saveNom()" style="padding:10px 18px;background:linear-gradient(135deg,var(--eau-claire),var(--rose));color:white;border:none;border-radius:10px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;white-space:nowrap">Enregistrer</button>
+      </div>
+      <div style="margin-top:12px;padding:12px;background:var(--bleu-clair);border-radius:10px;font-size:12px;color:var(--eau-claire)">
+        Aperçu : <strong>${nom}</strong> — Carnet de Pêche Personnel
+      </div>
+    </div>
+    <div class="stat-card" style="margin-bottom:14px">
+      <div class="stat-card-title">🎨 Apparence</div>
+      <div class="settings-row">
+        <div class="settings-label">Mode sombre
+          <span class="settings-sub">Suit automatiquement les préférences du téléphone</span>
+        </div>
+        <button onclick="toggleDarkMode();renderParametresPage()" style="padding:8px 16px;background:var(--bleu-clair);color:var(--eau-claire);border:none;border-radius:20px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px">
+          ${document.body.classList.contains('dark')?'☀️ Mode clair':'🌙 Mode sombre'}
+        </button>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-title">🗑 Données</div>
+      <div class="settings-row">
+        <div class="settings-label">Réinitialiser toutes les données
+          <span class="settings-sub">Supprime sorties, spots et appâts — irréversible</span>
+        </div>
+        <button onclick="resetAllData()" style="padding:8px 14px;background:#fee;color:var(--rouge);border:1px solid #fcc;border-radius:20px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;white-space:nowrap">
+          🗑 Réinitialiser
+        </button>
+      </div>
+    </div>`;
+}
+
+function saveNom(){
+  const nom=(document.getElementById('param-nom')?.value||'').trim();
+  if(!nom){showToast('⚠️ Entrez votre nom');return;}
+  localStorage.setItem('pecheur-nom',nom);
+  // Mise à jour de la modale À propos
+  const authorEl=document.querySelector('.info-author');
+  if(authorEl) authorEl.textContent=nom;
+  renderParametresPage();
+  showToast('✅ Nom enregistré !');
+}
+
+function resetAllData(){
+  if(!confirm('⚠️ Supprimer TOUTES les données ?\n\nCette action est irréversible.')) return;
+  if(!confirm('Confirmez-vous la suppression complète ?')) return;
+  localStorage.removeItem('peche-entries');
+  localStorage.removeItem('peche-spots');
+  localStorage.removeItem('peche-appats');
+  entries=[]; spots=[]; appats=[];
+  renderJournal(); updateAllStats(); renderSpotsForm();
+  switchView('journal');
+  showToast('🗑 Données réinitialisées');
+}
+
+// ════════════════════════════════════════════════════════
 //  RAPPORT DE SAISON
 // ════════════════════════════════════════════════════════
 function renderRapportPage(){
@@ -2056,7 +2295,7 @@ function exportFicheImage(){
   // Footer
   ctx.fillStyle='rgba(255,255,255,0.3)';
   ctx.font='13px DM Sans, sans-serif'; ctx.textAlign='right';
-  ctx.fillText('🎣 Carnet de Pêche — Bruno LARIVE',W-40,H-30);
+  ctx.fillText(`🎣 Carnet de Pêche — ${getPecheurNom()}`,W-40,H-30);
 
   // Télécharger
   canvas.toBlob(blob=>{
@@ -2107,7 +2346,7 @@ function exportPDF(){
     @media print{body{padding:16px;}}
   </style></head><body>
   <h1>🎣 Rapport de Pêche ${annee}</h1>
-  <div class="subtitle">Bruno LARIVE — Généré le ${new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
+  <div class="subtitle">${getPecheurNom()} — Généré le ${new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
   <div class="stats-grid">
     <div class="stat-box"><span class="val">${nbSorties}</span><span class="lbl">Sorties</span></div>
     <div class="stat-box"><span class="val">${prises.length}</span><span class="lbl">Prises</span></div>
@@ -2137,7 +2376,7 @@ function exportPDF(){
       </tr>`;
     }).join('')}
   </table>
-  <div class="footer">Carnet de Pêche Personnel — Bruno LARIVE © 2026 — V0.0.1</div>
+  <div class="footer">Carnet de Pêche Personnel — ${getPecheurNom()} © 2026 — V1.0</div>
   </body></html>`;
 
   const blob=new Blob([html],{type:'text/html;charset=utf-8'});
